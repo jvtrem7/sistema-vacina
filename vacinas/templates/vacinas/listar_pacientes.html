@@ -1,0 +1,42 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<header class="d-flex justify-content-between align-items-center mb-5">
+    <div>
+        <h2 class="fw-bold mb-0">Pacientes Cadastrados</h2>
+        <p class="text-muted">Lista completa de cidadãos no sistema EasyVacc.</p>
+    </div>
+    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary">
+        <i class="fas fa-user-plus me-2"></i>Novo Cadastro
+    </a>
+</header>
+
+<div class="content-card">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light">
+                <tr>
+                    <th>NOME</th>
+                    <th>CPF</th>
+                    <th>DATA DE NASCIMENTO</th>
+                    <th class="text-center">AÇÕES</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in pacientes %}
+                <tr>
+                    <td class="fw-bold text-uppercase">{{ p.nome }}</td>
+                    <td>{{ p.cpf }}</td>
+                    <td>{{ p.data_nascimento|date:"d/m/Y" }}</td>
+                    <td class="text-center">
+                        <a href="{% url 'editar_paciente' p.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
+                            <i class="fas fa-edit"></i>
+                        </a>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

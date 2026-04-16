@@ -1,0 +1,25 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<header class="mb-5">
+    <h2 class="fw-bold mb-0">
+    {% if editando %} Editar Cadastro {% else %} Novo Cadastro {% endif %}
+    </h2>
+</header>
+
+<div class="table-container">
+    <form method="POST" action="." class="row g-3">
+        {% csrf_token %}
+        {% for field in form %}
+        <div class="col-md-6">
+            <label class="form-label fw-bold">{{ field.label }}</label>
+            {{ field }}
+        </div>
+        {% endfor %}
+        <div class="col-12 mt-4">
+            <button type="submit" class="btn btn-primary">Salvar Paciente</button>
+            <a href="{% url 'home' %}" class="btn btn-outline-secondary ms-2">Cancelar</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

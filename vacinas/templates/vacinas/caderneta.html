@@ -1,0 +1,42 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<div class="content-card mb-4">
+    <h2 class="fw-bold"><i class="fas fa-search me-2 text-primary"></i>Consultar Minha Caderneta</h2>
+    <form method="GET" action="." class="row g-2 mt-3">
+        <div class="col-md-8">
+            <input type="text" name="cpf" class="form-control form-control-lg" placeholder="Digite seu CPF para consultar..." value="{{ cpf_busca|default:'' }}">
+        </div>
+        <div class="col-md-4">
+            <button type="submit" class="btn btn-primary btn-lg w-100">Consultar</button>
+        </div>
+    </form>
+</div>
+
+{% if paciente %}
+    <div class="alert alert-info">
+        <i class="fas fa-user me-2"></i> Mostrando resultados para: <strong>{{ paciente.nome }}</strong>
+    </div>
+
+    <div class="row">
+        {% for v in vacinas %}
+        <div class="col-md-4 mb-3">
+            <div class="card border-0 shadow-sm border-start border-4 border-success">
+                <div class="card-body">
+                    <h5 class="fw-bold mb-1 text-uppercase">{{ v.nome_vacina }}</h5>
+                    <p class="text-muted small mb-2">Lote: #{{ v.lote }}</p>
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="badge bg-success-subtle text-success">Aplicada</span>
+                        <span class="text-secondary small">{{ v.data_aplicacao|date:"d/m/Y" }}</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center py-5">
+            <p class="text-muted">Nenhum registro de vacina encontrado para este CPF.</p>
+        </div>
+        {% endfor %}
+    </div>
+{% endif %}
+{% endblock %}

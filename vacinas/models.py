@@ -17,3 +17,11 @@ class Vacina(models.Model):
 
     def __str__(self):
         return f"{self.nome_vacina} - {self.paciente.nome}"
+
+class PostoSaude(models.Model):
+    nome = models.CharField(max_length=100)
+    endereco = models.CharField(max_length=200)
+    vacinas_disponiveis = models.TextField(help_text="Liste as vacinas separadas por vírgula")
+
+    def __str__(self):
+        return self.nome

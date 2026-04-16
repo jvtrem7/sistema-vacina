@@ -3,62 +3,122 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>EasyVacc | Sistema de Gestão</title>
+    <title>EasyVacc | Gestão de Imunização</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
-        :root { --primary-blue: #2563eb; --bg-light: #f4f7fe; --text-main: #334155; }
+        :root { 
+        --dark-sidebar: #ffffff; /* Fundo branco */
+        --bg-light: #f1f5f9; 
+        --text-main: #334155; 
+        --primary-blue: #2563eb;
+        }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-main); margin: 0; }
         
-        /* Sidebar Fixa */
-        .sidebar { background: #fff; height: 100vh; border-right: 1px solid #e2e8f0; position: fixed; width: 260px; z-index: 100; }
-        .main-content { margin-left: 260px; padding: 2.5rem; min-height: 100vh; }
+        /* Sidebar SaaS (Escura e Fixa) */
+        .sidebar { background: var(--dark-sidebar); height: 100vh; position: fixed; width: 260px; z-index: 100; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+        .main-content { margin-left: 260px; padding: 2rem 3rem; min-height: 100vh; }
         
-        /* Estilo dos Links */
-        .nav-link { color: #64748b; font-weight: 500; padding: 0.8rem 1.5rem; border-radius: 12px; margin: 0.2rem 1rem; transition: all 0.3s; }
-        .nav-link.active { background-color: #eff6ff; color: var(--primary-blue); }
-        .nav-link:hover { background-color: #f8fafc; color: var(--primary-blue); transform: translateX(5px); }
+        /* Estilo da Logo */
+        .logo-container { padding: 1.5rem; text-align: center; border-bottom: 1px solid #334155;
+        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
+    border-bottom: 1px solid rgba(255,255,255,0.05); }
+        .logo-img { max-width: 140px; }
         
-        /* Containers e Cards */
-        .content-card { background: white; border-radius: 20px; padding: 2rem; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05); }
-        .btn-primary { background-color: var(--primary-blue); border: none; padding: 10px 24px; border-radius: 10px; font-weight: 600; }
+        /* Links Minimalistas do SaaS */
+        .nav-link { 
+           color: #64748b;
+            font-weight: 500; 
+            padding: 0.8rem 1.5rem; 
+            border-radius: 8px; 
+            margin: 0.2rem 1rem; 
+            transition: all 0.3s;
+            display: flex;
+            align-items: center;
+            white-space: nowrap; 
+        }
+        .nav-link:hover { background-color: #eff6ff ; color: #fff; transform: translateX(5px); }
+        .nav-link.active { background-color: #334155;color: #ffff; }
+        .nav-link i { font-size: 1.1rem; }
         
-        /* Responsividade para celulares */
-        @media (max-width: 768px) {
-            .sidebar { width: 70px; }
-            .sidebar h4, .sidebar span { display: none; }
-            .main-content { margin-left: 70px; padding: 1rem; }
-            .nav-link { padding: 0.8rem; text-align: center; }
-            .nav-link i { margin: 0 !important; font-size: 1.2rem; }
+        /* Estilo dos Títulos do Menu */
+        .menu-header { color: #475569;; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 1rem 2rem 0.5rem; font-weight: 700; }
+        
+        /* Cards de Conteúdo SaaS */
+        .content-card { background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e2e8f0; }
+        .card-title { font-weight: 700; color: #1e293b; }
+        
+        /* Tabelas Limpas */
+        .table { --bs-table-bg: transparent; }
+        .table thead th { color: #64748b; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; font-weight: 700; }
+        .table tbody td { font-weight: 500; color: var(--text-main); }
+        
+        @media (max-width: 992px) {
+            .sidebar { width: 80px; }
+            .sidebar span, .sidebar .menu-header, .sidebar .logo-img { display: none; }
+            .sidebar .logo-container { padding: 1rem; }
+            .sidebar h4 { display: block; font-size: 1.5rem; color: #fff; }
+            .main-content { margin-left: 80px; padding: 1rem; }
+            .nav-link { padding: 0.8rem; text-align: center; justify-content: center; margin: 0.2rem; }
+            .nav-link i { margin: 0 !important; font-size: 1.3rem; }
         }
     </style>
 </head>
 <body>
+    {% load static %} <div class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
+            <h4 class="d-lg-none d-block m-0"><i class="fas fa-syringe"></i></h4> </div>
+        
+        <nav class="nav flex-column mt-3">
+            {% if user.is_authenticated and request.resolver_match.url_name != 'caderneta_paciente' and request.resolver_match.url_name != 'listar_postos' %}
+                
+                <p class="menu-header">Administração</p>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                    <i class="fas fa-chart-line me-3"></i> <span>Dashboard</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
+                    <i class="fas fa-users me-3"></i> <span>Lista de Pacientes</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
+                    <i class="fas fa-user-plus me-3"></i> <span>Novo Cadastro</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
+                    <i class="fas fa-pills me-3"></i> <span>Registrar Dose</span>
+                </a>
+                
+                <p class="menu-header">Sistema</p>
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-cog me-3"></i> <span>Painel Admin</span>
+                </a>
+                
+                <div class="border-top my-3 mx-3" style="border-color: #334155 !important;"></div>
+                
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+                <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt me-3"></i> <span>Sair</span>
+                </a>
 
-    <div class="sidebar">
-        <div class="p-4 mb-3">
-            <h4 class="text-primary fw-bold"><i class="fas fa-syringe me-2"></i><span>EasyVacc</span></h4>
-        </div>
-        <nav class="nav flex-column">
-            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                <i class="fas fa-chart-line me-2"></i> <span>Dashboard</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
-                <i class="fas fa-user-plus me-2"></i> <span>Novo Paciente</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
-                <i class="fas fa-pills me-2"></i> <span>Registrar Dose</span>
-            </a>
-            <div class="border-top my-3 mx-3"></div>
-            <a class="nav-link" href="/admin">
-                <i class="fas fa-cog me-2"></i> <span>Painel Admin</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
-    <i class="fas fa-address-book me-2"></i> <span>Lista de Pacientes</span>
-</a>
+            {% else %}
+                {# MENU DO CIDADÃO (Público) #}
+                <p class="menu-header">Portal do Cidadão</p>
+                <a class="nav-link {% if request.resolver_match.url_name == 'caderneta_paciente' %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
+                    <i class="fas fa-id-card me-3"></i> <span>Minha Caderneta</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_postos' %}active{% endif %}" href="{% url 'listar_postos' %}">
+                    <i class="fas fa-map-marker-alt me-3"></i> <span>Postos de Saúde</span>
+                </a>
+                
+                <div class="border-top my-3 mx-3" style="border-color: #334155 !important;"></div>
+                <a class="nav-link" href="{% url 'index_escolha' %}">
+                    <i class="fas fa-arrow-left me-3"></i> <span>Voltar ao Início</span>
+                </a>
+            {% endif %}
         </nav>
     </div>
 

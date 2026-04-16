@@ -16,4 +16,6 @@ urlpatterns = [
     path('postos/', views.listar_postos, name='listar_postos'),
     path('login/', auth_views.LoginView.as_view(template_name='vacinas/login.html'), name='login'),
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
+    path('estoque/', views.listar_estoque, name='listar_estoque'),
+    path('estoque/novo/', views.cadastrar_estoque, name='cadastrar_estoque'),
 ]

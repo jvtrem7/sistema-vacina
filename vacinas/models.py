@@ -25,3 +25,13 @@ class PostoSaude(models.Model):
 
     def __str__(self):
         return self.nome
+    
+class Estoque(models.Model):
+    nome_vacina = models.CharField(max_length=100)
+    lote = models.CharField(max_length=50)
+    quantidade_atual = models.IntegerField(default=0)
+    data_validade = models.DateField()
+    fornecedor = models.CharField(max_length=100, default="Secretaria de Saúde")
+
+    def __str__(self):
+        return f"{self.nome_vacina} - Lote: {self.lote}"

@@ -1,0 +1,53 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<header class="mb-5 d-flex justify-content-between align-items-center">
+    <div>
+        <h2 class="fw-bold mb-0">Controle de Estoque</h2>
+        <p class="text-muted">Gestão de insumos e lotes disponíveis na rede municipal.</p>
+    </div>
+    <a href="{% url 'cadastrar_estoque' %}" class="btn btn-primary shadow-sm">
+    <i class="fas fa-plus-circle me-2"></i>Entrada de Lote
+</a>
+</header>
+
+<div class="content-card border-0 shadow-sm">
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead>
+                <tr>
+                    <th>VACINA / IMUNIZANTE</th>
+                    <th>LOTE</th>
+                    <th>QTD. DISPONÍVEL</th>
+                    <th>VALIDADE</th>
+                    <th class="text-center">STATUS</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for item in itens %}
+                <tr>
+                    <td class="fw-bold text-primary">{{ item.nome_vacina }}</td>
+                    <td><code class="text-dark">{{ item.lote }}</code></td>
+                    <td>
+                        <span class="fw-bold">{{ item.quantidade_atual }}</span> 
+                        <small class="text-muted">doses</small>
+                    </td>
+                    <td>{{ item.data_validade|date:"d/m/Y" }}</td>
+                    <td class="text-center">
+                        {% if item.quantidade_atual > 10 %}
+                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Estoque Ok</span>
+                        {% else %}
+                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Estoque Baixo</span>
+                        {% endif %}
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center py-5 text-muted">Nenhum lote cadastrado no estoque.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

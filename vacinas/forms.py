@@ -1,5 +1,5 @@
 from django import forms
-from .models import Paciente, Vacina
+from .models import Paciente, Vacina, Estoque
 
 class PacienteForm(forms.ModelForm):
     class Meta:
@@ -19,4 +19,16 @@ class VacinaForm(forms.ModelForm):
             'paciente': forms.Select(attrs={'class': 'form-select'}),
             'nome_vacina': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Pfizer, Coronavac...'}),
             'lote': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número do lote'}),
+        }
+
+class EstoqueForm(forms.ModelForm):
+    class Meta:
+        model = Estoque
+        fields = ['nome_vacina', 'lote', 'quantidade_atual', 'data_validade', 'fornecedor']
+        widgets = {
+            'data_validade': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
+            'nome_vacina': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Pfizer'}),
+            'lote': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: FD1234'}),
+            'quantidade_atual': forms.NumberInput(attrs={'class': 'form-control'}),
+            'fornecedor': forms.TextInput(attrs={'class': 'form-control'}),
         }

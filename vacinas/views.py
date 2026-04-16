@@ -1,10 +1,12 @@
 from django.shortcuts import render, redirect
-from .models import Vacina, Paciente
+from .models import Vacina, Paciente, Estoque
 from .forms import PacienteForm
 from .forms import PacienteForm, VacinaForm
 from django.shortcuts import get_object_or_404
 from .models import PostoSaude
 from django.contrib.auth.decorators import login_required
+from .forms import EstoqueForm
+from django.shortcuts import redirect, render
 
 @login_required
 def home(request):
@@ -79,3 +81,16 @@ def listar_postos(request):
 
 def index_escolha(request):
     return render(request, 'vacinas/index_escolha.html')
+
+def listar_estoque(request):
+    itens = Estoque.objects.all()
+    return render(request, 'vacinas/estoque.html', {'itens': itens})
+def cadastrar_estoque(request):
+    if request.method == 'POST':
+        form = EstoqueForm(request.POST)
+        if form.is_valid():
+            form.save()
+            return redirect('listar_estoque')
+    else:
+        form = EstoqueForm()
+    return render(request, 'vacinas/cadastrar_estoque.html', {'form': form})

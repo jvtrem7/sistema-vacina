@@ -1,82 +1,82 @@
 {% extends 'vacinas/base_externo.html' %}
 {% load static %}
-
+<head>
+<link rel="shortcut icon" type="image/png" href="{% static 'vacinas/easyvacc.png' %}">
+    <title>EasyVacc</title>
+</head>
 {% block content %}
-<div class="container min-vh-100 d-flex flex-column justify-content-center py-5">
+<div class="container vh-100 d-flex flex-column justify-content-center overflow-hidden">
     
-    <div class="text-center mb-3 animate-fade-in">
-        <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc Logo" style="max-width: 140px; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
-        <div class="mt-4">
-            <h1 class="fw-bold text-dark mb-2">EasyVacc</h1>
-            <p class="text-muted lead">Universidade de Vassouras | Sistema de Controle de Vacinas</p>
-            <div class="mx-auto bg-primary rounded-pill" style="width: 60px; height: 4px;"></div>
+    <div class="text-center mb-4 animate-fade-in">
+        <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc Logo" style="max-height: 100px; width: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
+        <div class="mt-2">
+            <h1 class="fw-bold text-dark mb-0" style="font-size: 2rem;">EasyVacc</h1>
+            <p class="text-muted small mb-1">Universidade de Vassouras | Sistema de Controle de Vacinas</p>
+            <div class="mx-auto bg-primary rounded-pill" style="width: 40px; height: 3px;"></div>
         </div>
     </div>
 
     <div class="row justify-content-center g-4">
         
-        <div class="col-lg-5">
-            <div class="card h-100 border-0 shadow-lg transition-card overflow-hidden" style="border-radius: 24px;">
-                <div class="p-5 bg-gradient-blue text-white text-center position-relative">
-                    <i class="fas fa-user-md fa-5x mb-3 position-relative z-1"></i>
-                    <h3 class="fw-bold position-relative z-1">Servidor Público</h3>
+        <div class="col-lg-5 col-md-6">
+            <div class="card border-0 shadow-lg transition-card overflow-hidden" style="border-radius: 20px;">
+                <div class="p-4 bg-gradient-blue text-white text-center position-relative">
+                    <i class="fas fa-user-md fa-3x mb-2 position-relative z-1"></i>
+                    <h4 class="fw-bold mb-0 position-relative z-1">Servidor Público</h4>
                     <div class="decoration-circle"></div>
                 </div>
-                <div class="card-body p-5">
-                    <p class="text-muted mb-4 text-center">Acesso restrito para enfermeiros, técnicos e agentes de saúde realizarem o controle de estoque e registros de aplicações.</p>
-                    <a href="{% url 'login' %}" class="btn btn-primary btn-lg w-100 rounded-pill fw-bold py-3 shadow-sm hover-lift">
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3 text-center">Acesso restrito para profissionais de saúde realizarem controle e registros.</p>
+                    <a href="{% url 'login' %}" class="btn btn-primary btn-sm w-100 rounded-pill fw-bold py-2 shadow-sm hover-lift">
                         Entrar no Painel <i class="fas fa-lock ms-2"></i>
                     </a>
                 </div>
             </div>
         </div>
 
-        <div class="col-lg-5">
-            <div class="card h-100 border-0 shadow-lg transition-card overflow-hidden" style="border-radius: 24px;">
-                <div class="p-5 bg-gradient-green text-white text-center position-relative">
-                    <i class="fas fa-id-card-alt fa-5x mb-3 position-relative z-1"></i>
-                    <h3 class="fw-bold position-relative z-1">Portal do Cidadão</h3>
+        <div class="col-lg-5 col-md-6">
+            <div class="card border-0 shadow-lg transition-card overflow-hidden" style="border-radius: 20px;">
+                <div class="p-4 bg-gradient-green text-white text-center position-relative">
+                    <i class="fas fa-id-card-alt fa-3x mb-2 position-relative z-1"></i>
+                    <h4 class="fw-bold mb-0 position-relative z-1">Portal do Cidadão</h4>
                     <div class="decoration-circle"></div>
                 </div>
-                <div class="card-body p-5">
-                    <p class="text-muted mb-4 text-center">Consulte sua caderneta digital, verifique postos e acompanhe suas próximas doses agendadas.</p>
-                    <a href="{% url 'caderneta_paciente' %}" class="btn btn-success btn-lg w-100 rounded-pill fw-bold py-3 shadow-sm hover-lift">
-                        Acessar Minha Caderneta <i class="fas fa-arrow-right ms-2"></i>
+                <div class="card-body p-4">
+                    <p class="text-muted small mb-3 text-center">Consulte sua caderneta digital, postos e próximas doses agendadas.</p>
+                    <a href="{% url 'caderneta_paciente' %}" class="btn btn-success btn-sm w-100 rounded-pill fw-bold py-2 shadow-sm hover-lift">
+                        Minha Caderneta <i class="fas fa-arrow-right ms-2"></i>
                     </a>
                 </div>
             </div>
         </div>
     </div>
 
-    <div class="text-center mt-5 opacity-50">
-        <p class="small fw-bold">Desenvolvido por Alunos Da Univassouras - Saquarema/RJ</p>
+    <div class="text-center mt-4 opacity-50">
+        <p style="font-size: 0.7rem;" class="fw-bold mb-0">Desenvolvido por Alunos Da Univassouras - Saquarema/RJ</p>
     </div>
 </div>
 
 <style>
-    /* Degradês Profissionais */
+    /* Ajuste 6: Forçar o body a não ter scroll se possível */
+    body { overflow: hidden; background-color: #f8fafc; }
+
     .bg-gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
     .bg-gradient-green { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
 
-    /* Efeitos de Hover e Animação */
     .transition-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
-    .transition-card:hover { transform: translateY(-12px); box-shadow: 0 30px 60px rgba(0,0,0,0.12) !important; }
+    .transition-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }
     
     .hover-lift { transition: transform 0.2s ease; }
-    .hover-lift:hover { transform: scale(1.02); }
+    .hover-lift:hover { transform: scale(1.01); }
 
-    /* Elementos Decorativos nos Cards */
     .decoration-circle {
-        position: absolute; top: -20px; right: -20px; width: 120px; height: 120px;
+        position: absolute; top: -15px; right: -15px; width: 80px; height: 80px;
         background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;
     }
 
-    /* Animação de Entrada */
-    .animate-fade-in {
-        animation: fadeIn 0.8s ease-out;
-    }
+    .animate-fade-in { animation: fadeIn 0.8s ease-out; }
     @keyframes fadeIn {
-        from { opacity: 0; transform: translateY(-20px); }
+        from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
     }
 </style>

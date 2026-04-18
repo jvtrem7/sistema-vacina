@@ -75,7 +75,7 @@
             <h4 class="d-lg-none d-block m-0"><i class="fas fa-syringe"></i></h4> </div>
         
         <nav class="nav flex-column mt-3">
-            {% if user.is_authenticated and request.resolver_match.url_name != 'caderneta_paciente' and request.resolver_match.url_name != 'listar_postos' %}
+            {% if user.is_authenticated and request.resolver_match.url_name != 'caderneta_paciente' and request.resolver_match.url_name != 'busca_postos' %}
                 
                 <p class="menu-header">Administração</p>
                 <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
@@ -115,7 +115,7 @@
                 <a class="nav-link {% if request.resolver_match.url_name == 'caderneta_paciente' %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
                     <i class="fas fa-id-card me-3"></i> <span>Minha Caderneta</span>
                 </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'listar_postos' %}active{% endif %}" href="{% url 'listar_postos' %}">
+                <a class="nav-link {% if request.resolver_match.url_name == 'busca_postos' %}active{% endif %}" href="{% url 'busca_postos' %}">
                     <i class="fas fa-map-marker-alt me-3"></i> <span>Postos de Saúde</span>
                 </a>
                 

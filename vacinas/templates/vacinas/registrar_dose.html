@@ -10,16 +10,45 @@
     <form method="POST" class="row g-3">
         {% csrf_token %}
         
-        {% for field in form %}
-        <div class="col-md-6 mb-3">
-            <label class="form-label fw-bold text-secondary">{{ field.label }}</label>
-            {{ field }}
-            {% if field.help_text %}
-                <div class="form-text">{{ field.help_text }}</div>
-            {% endif %}
+        <!-- Primeira Linha: Paciente e Nome da Vacina -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-secondary">Paciente</label>
+                {{ form.paciente }}
+                {% if form.paciente.errors %}
+                    <div class="text-danger small">{{ form.paciente.errors }}</div>
+                {% endif %}
+            </div>
+            
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-secondary">Nome vacina</label>
+                {{ form.nome_vacina }}
+                {% if form.nome_vacina.errors %}
+                    <div class="text-danger small">{{ form.nome_vacina.errors }}</div>
+                {% endif %}
+            </div>
         </div>
-        {% endfor %}
 
+        <!-- Segunda Linha: Posto de Saúde e Lote -->
+        <div class="row">
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-secondary">Posto de Saúde</label>
+                {{ form.posto}}
+                {% if form.posto.errors %}
+                    <div class="text-danger small">{{ form.posto.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="col-md-6 mb-3">
+                <label class="form-label fw-bold text-secondary">Lote</label>
+                {{ form.lote }}
+                {% if form.lote.errors %}
+                    <div class="text-danger small">{{ form.lote.errors }}</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <!-- Botões de Ação -->
         <div class="col-12 mt-4">
             <button type="submit" class="btn btn-primary shadow-sm">
                 <i class="fas fa-check-circle me-2"></i>Finalizar Registro

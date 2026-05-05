@@ -17,4 +17,5 @@ urlpatterns = [
     path('logout/', auth_views.LogoutView.as_view(), name='logout'),
     path('estoque/', views.listar_estoque, name='listar_estoque'),
     path('estoque/novo/', views.cadastrar_estoque, name='cadastrar_estoque'),
+    path('exportar-csv/', views.exportar_dados_csv, name='exportar_csv'),
 ]

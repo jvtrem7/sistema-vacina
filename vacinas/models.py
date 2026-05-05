@@ -36,7 +36,7 @@ class Vacina(models.Model):
     data_aplicacao = models.DateTimeField(auto_now_add=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
     item_estoque = models.ForeignKey(Estoque, on_delete=models.SET_NULL, null=True, verbose_name="Vacina do Estoque")
-    data_aplicacao = models.DateTimeField(auto_now_add=True)
+    posto = models.ForeignKey('PostoSaude', on_delete=models.SET_NULL, null=True, blank=True)
 
     def __str__(self):
         return f"{self.nome_vacina} - {self.paciente.nome}"

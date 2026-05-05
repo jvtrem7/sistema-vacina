@@ -14,12 +14,23 @@ class PacienteForm(forms.ModelForm):
 class VacinaForm(forms.ModelForm):
     class Meta:
         model = Vacina
-        fields = ['paciente', 'nome_vacina', 'lote']
+        fields = ['paciente', 'nome_vacina', 'lote', 'posto']
         widgets = {
             'paciente': forms.Select(attrs={'class': 'form-select'}),
-            'nome_vacina': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Ex: Pfizer, Coronavac...'}),
-            'lote': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Número do lote'}),
+            'nome_vacina': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Ex: Pfizer, Coronavac...'
+            }),
+            'lote': forms.TextInput(attrs={
+                'class': 'form-control', 
+                'placeholder': 'Número do lote'
+            }),
+            'posto': forms.Select(attrs={'class': 'form-select'}),
+            'item_estoque': forms.Select(attrs={'class': 'form-select'}),
+
         }
+
+    
 
 class EstoqueForm(forms.ModelForm):
     class Meta:
@@ -32,3 +43,15 @@ class EstoqueForm(forms.ModelForm):
             'quantidade_atual': forms.NumberInput(attrs={'class': 'form-control'}),
             'fornecedor': forms.TextInput(attrs={'class': 'form-control'}),
         }
+
+class RegistroDoseForm(forms.ModelForm):
+    class Meta:
+        model = Vacina
+        fields = ['paciente', 'nome_vacina', 'posto', 'lote'] 
+        widgets = {
+            'paciente': forms.Select(attrs={'class': 'form-select'}),
+            'nome_vacina': forms.TextInput(attrs={'class': 'form-control'}),
+            'lote': forms.TextInput(attrs={'class': 'form-control'}),
+            'posto': forms.Select(attrs={'class': 'form-select'}),
+        }
+        

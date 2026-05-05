@@ -1,8 +1,10 @@
-import requests # Importante: Sem isso o ViaCEP não funciona!
+import csv
+import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Vacina, Paciente, Estoque, PostoSaude
 from .forms import PacienteForm, VacinaForm, EstoqueForm
+from django.http import HttpResponse
 
 @login_required
 def home(request):
@@ -49,7 +51,7 @@ def editar_paciente(request, pk):
     if form.is_valid():
         form.save()
         return redirect('listar_pacientes')
-    return render(request, 'vacinas/cadastro_pac_view.html', {'form': form, 'editando': True})
+    return render(request, 'vacinas/cadastro_paciente.html', {'form': form, 'editando': True})
 
 def caderneta_paciente(request):
     cpf_busca = request.GET.get('cpf')
@@ -103,3 +105,28 @@ def consulta_cep_postos(request):
         'bairro_localizado': bairro_detectado,
         'cep_pesquisado': cep_digitado
     })
+
+@login_required
+def exportar_dados_csv(request):
+ 
+    response = HttpResponse(content_type='text/csv; charset=utf-8')
+    response['Content-Disposition'] = 'attachment; filename="relatorio_vacinas_saquarema.csv"'
+
+    response.write(u'\ufeff'.encode('utf8')) 
+    
+    writer = csv.writer(response, delimiter=';')
+
+    writer.writerow(['Paciente', 'CPF', 'Vacina', 'Data de Aplicação', 'Posto de Saúde'])
+
+    vacinacoes = Vacina.objects.all().select_related('paciente', 'posto')
+
+    for v in vacinacoes:
+        writer.writerow([
+            v.paciente.nome,
+            v.paciente.cpf,
+            v.item_estoque.nome_vacina if v.item_estoque else "N/A",
+            v.data_aplicacao.strftime('%d/%m/%Y %H:%M'),
+            v.item_estoque.posto.nome if v.item_estoque and v.item_estoque.posto else "N/A"
+        ])
+
+    return response

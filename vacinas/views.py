@@ -5,6 +5,8 @@ from django.contrib.auth.decorators import login_required
 from .models import Vacina, Paciente, Estoque, PostoSaude
 from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
+from django.db.models.functions import Replace
+from django.db.models import Value
 
 @login_required
 def home(request):
@@ -84,23 +86,25 @@ def cadastrar_estoque(request):
 
 def consulta_cep_postos(request):
     cep_digitado = request.GET.get('cep')
-    postos_encontrados = PostoSaude.objects.none() # Começa vazio
-    bairro_detectado = None
+    postos_encontrados = PostoSaude.objects.none()
 
     if cep_digitado:
         cep_limpo = cep_digitado.replace("-", "").replace(" ", "")
         
-        postos_encontrados = PostoSaude.objects.filter(cep__icontains=cep_limpo)
+        postos_encontrados = PostoSaude.objects.annotate(
+            cep_sem_hifen=Replace('cep', Value('-'), Value(''))
+        ).filter(cep_sem_hifen__icontains=cep_limpo)
 
-        if not postos_encontrados:
+       
+        if not postos_encontrados.exists():
             url = f"https://viacep.com.br/ws/{cep_limpo}/json/"
             try:
                 response = requests.get(url)
                 if response.status_code == 200:
                     dados = response.json()
                     bairro_detectado = dados.get('bairro')
+                    
                     if bairro_detectado:
-                        # Busca por nome de bairro (ex: Bacaxá)
                         postos_encontrados = PostoSaude.objects.filter(bairro__icontains=bairro_detectado)
             except:
                 pass 

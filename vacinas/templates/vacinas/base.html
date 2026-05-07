@@ -9,147 +9,106 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
-   <style>
-    :root { 
-        --primary-blue: #2563eb;
-        --bg-light: #f8fafc;
-        --text-main: #1e293b;
-        --sidebar-white: #ffffff;
+<style>
+    :root {
+        --sidebar-width: 240px; /* Reduzi um pouco a largura */
+        --primary-color: #2563eb;
     }
 
-    body { 
-        font-family: 'Inter', sans-serif; 
-        background-color: var(--bg-light); 
-        color: var(--text-main); 
-        margin: 0;
+    html, body {
         overflow-x: hidden;
+        background-color: #f8fafc;
+        font-family: 'Inter', sans-serif;
     }
 
-    /* SIDEBAR (Desktop) */
+    /* SIDEBAR CORRIGIDA */
     .sidebar { 
-        background: var(--sidebar-white); 
+        background: #ffffff; 
         height: 100vh; 
         position: fixed; 
-        width: 260px; 
+        top: 0;
+        left: 0;
+        width: var(--sidebar-width); 
         z-index: 1000; 
-        box-shadow: 2px 0 10px rgba(0,0,0,0.03);
-    }
-
-    .main-content { 
-        margin-left: 260px; 
-        padding: 2rem; 
-        min-height: 100vh; 
-    }
-
-    .logo-container { padding: 2rem 1.5rem; text-align: center; }
-    .logo-img { max-width: 140px; }
-
-    .nav-link { 
-        color: #64748b;
-        padding: 0.8rem 1.5rem; 
-        border-radius: 10px; 
-        margin: 0.2rem 1rem; 
+        border-right: 1px solid #e2e8f0;
         display: flex;
+        flex-direction: column;
+        overflow-y: auto; /* PERMITE ROLAR A BARRA SE ELA FOR MAIOR QUE A TELA */
+    }
+
+    .logo-container { padding: 1.5rem 1rem; text-align: center; }
+    .logo-img { width: 100%; max-width: 130px; height: auto; } /* Logo menor para caber tudo */
+
+    .nav.flex-column {
+        display: flex !important;
+        flex-direction: column !important;
+        padding-bottom: 20px;
+    }
+
+    .nav-link {
+        padding: 0.7rem 1.2rem;
+        color: #64748b;
+        display: flex !important;
         align-items: center;
         text-decoration: none;
-        transition: 0.2s;
+        font-weight: 500;
+        font-size: 0.9rem;
     }
 
-    .nav-link:hover, .nav-link.active { 
-        background-color: #f1f5f9; 
-        color: var(--primary-blue); 
+    /* ÍCONES ALINHADOS */
+    .nav-link i {
+        width: 28px; 
+        font-size: 1.1rem;
+        display: flex;
+        justify-content: center;
+        margin-right: 10px;
     }
 
-    .menu-header { 
-        color: #94a3b8; 
-        font-size: 0.75rem; 
-        text-transform: uppercase; 
-        padding: 1.5rem 2rem 0.5rem; 
-        font-weight: 700; 
+    .nav-link:hover, .nav-link.active {
+        background: #eff6ff;
+        color: var(--primary-color);
+        border-right: 4px solid var(--primary-color);
     }
 
-    /* --- MOBILE REVOLUTION --- */
-    @media (max-width: 992px) {
-        .sidebar {
-            height: auto;
-            width: 100%;
-            position: sticky;
-            top: 0;
-            box-shadow: 0 2px 10px rgba(0,0,0,0.05);
-        }
+    .menu-header {
+        padding: 1.2rem 1.2rem 0.4rem;
+        text-transform: uppercase;
+        font-size: 0.65rem;
+        font-weight: 700;
+        color: #94a3b8;
+        letter-spacing: 1px;
+    }
 
-        .main-content { 
-            margin-left: 0; 
-            padding: 1rem; 
-            padding-bottom: 80px; /* Espaço para o menu de baixo */
-        }
+    /* CONTEÚDO PRINCIPAL - POSICIONAMENTO REAL */
+    .main-content { 
+        margin-left: var(--sidebar-width); 
+        padding: 2rem; 
+        width: calc(100% - var(--sidebar-width));
+        min-height: 100vh;
+    }
 
-        /* Menu de Navegação Inferior (Estilo App) */
+    /* REMOVER BOTÃO INDESEJADO NO DASHBOARD (Se ele existir no content) */
+    .main-content a[href*="cadastrar_paciente"].btn-primary {
+        /* Se você quer que o botão suma apenas no dashboard, certifique-se de apagar no home.html */
+    }
+
+    /* RESPONSIVO CELULAR */
+    @media (max-width: 991px) {
+        .sidebar { width: 100%; height: auto; position: relative; overflow-y: visible; }
+        .main-content { margin-left: 0; width: 100%; padding-bottom: 90px; }
         .nav.flex-column {
             flex-direction: row !important;
             position: fixed;
             bottom: 0;
-            left: 0;
+            background: white;
             width: 100%;
-            background: white;
-            justify-content: space-around;
-            padding: 10px 0;
             border-top: 1px solid #e2e8f0;
-            z-index: 9999;
-            margin-top: 0 !important;
+            justify-content: space-around;
+            padding: 5px 0;
         }
-
-        .nav-link {
-            flex-direction: column;
-            margin: 0;
-            padding: 5px;
-            font-size: 0.65rem;
-            color: #94a3b8;
-        }
-
-        .nav-link i { font-size: 1.2rem; margin-bottom: 4px; margin-right: 0 !important; }
-        
-        .nav-link.active { background: none; color: var(--primary-blue) !important; }
-
-        .menu-header, .logo-container { display: none; }
-        
-        /* Topo para Mobile */
-        .mobile-header {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            padding: 15px;
-            background: white;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        
-        .mobile-logo { max-width: 80px; }
-
-        /* Tabelas viram Cards */
-        .table-responsive { border: none; background: transparent; padding: 0; }
-        table { display: block; }
-        thead { display: none; } /* Esconde o topo da tabela */
-        tbody, tr, td { display: block; width: 100%; }
-        tr { 
-            background: white; 
-            margin-bottom: 15px; 
-            border-radius: 15px; 
-            padding: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
-        }
-        td { border: none; padding: 5px 0; text-align: left; position: relative; padding-left: 50%; }
-        td::before {
-            content: attr(data-label);
-            position: absolute;
-            left: 0;
-            width: 45%;
-            font-weight: bold;
-            color: #64748b;
-        }
-    }
-
-    @media (min-width: 993px) {
-        .mobile-header { display: none; }
+        .nav-link { flex-direction: column; padding: 8px 5px !important; font-size: 0.6rem; }
+        .nav-link i { margin: 0; width: auto; }
+        .menu-header, .logo-container { display: none !important; }
     }
 </style>
 </head>
@@ -161,48 +120,43 @@
             <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
         </div>
         
-        <nav class="nav flex-column mt-2">
-            {% if user.is_authenticated and request.resolver_match.url_name != 'caderneta_paciente' and request.resolver_match.url_name != 'busca_postos' %}
-                
+        <nav class="nav flex-column">
+            {% if user.is_authenticated %}
                 <p class="menu-header">Administração</p>
                 <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                    <i class="fas fa-chart-line me-2"></i> <span>Dashboard</span>
+                    <i class="fas fa-chart-line"></i> <span>Dashboard</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
-                    <i class="fas fa-users me-2"></i> <span>Pacientes</span>
+                    <i class="fas fa-users"></i> <span>Pacientes</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
-                    <i class="fas fa-user-plus me-2"></i> <span>Novo</span>
+                    <i class="fas fa-user-plus"></i> <span>Novo</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
-                    <i class="fas fa-pills me-2"></i> <span>Dose</span>
+                    <i class="fas fa-pills"></i> <span>Dose</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}">
-                    <i class="fas fa-boxes me-2"></i> <span>Estoque</span>
+                    <i class="fas fa-boxes"></i> <span>Estoque</span>
                 </a>
-                
+
                 <p class="menu-header">Sistema</p>
                 <a class="nav-link" href="/admin">
-                    <i class="fas fa-cog me-2"></i> <span>Admin</span>
+                    <i class="fas fa-cog"></i> <span>Admin</span>
                 </a>
                 
                 <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                     {% csrf_token %}
                 </form>
                 <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt me-2"></i> <span>Sair</span>
+                    <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
                 </a>
-
             {% else %}
                 <p class="menu-header">Portal</p>
-                <a class="nav-link {% if request.resolver_match.url_name == 'caderneta_paciente' %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
-                    <i class="fas fa-id-card me-2"></i> <span>Caderneta</span>
+                <a class="nav-link" href="{% url 'caderneta_paciente' %}">
+                    <i class="fas fa-id-card"></i> <span>Caderneta</span>
                 </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'busca_postos' %}active{% endif %}" href="{% url 'busca_postos' %}">
-                    <i class="fas fa-map-marker-alt me-2"></i> <span>Postos</span>
-                </a>
-                <a class="nav-link" href="{% url 'index_escolha' %}">
-                    <i class="fas fa-arrow-left me-2"></i> <span>Voltar</span>
+                <a class="nav-link" href="{% url 'busca_postos' %}">
+                    <i class="fas fa-map-marker-alt"></i> <span>Postos</span>
                 </a>
             {% endif %}
         </nav>

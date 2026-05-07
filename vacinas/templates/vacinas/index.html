@@ -1,45 +1,45 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<header class="mb-5 d-flex justify-content-between align-items-center">
+<header class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
     <div class="d-flex align-items-center">
-        <a href="{% url 'index_escolha' %}" class="btn btn-outline-secondary btn-sm rounded-circle me-3" title="Voltar ao início">
+        <a href="{% url 'index_escolha' %}" class="btn btn-outline-secondary btn-sm rounded-circle me-3 d-none d-md-inline-flex" title="Voltar ao início">
             <i class="fas fa-arrow-left"></i>
         </a>
         <div>
             <h2 class="fw-bold mb-0">Painel de Controle</h2>
-            <p class="text-muted small">Secretaria de Saúde de Saquarema</p>
+            <p class="text-muted small mb-0">Secretaria de Saúde de Saquarema</p>
         </div>
     </div>
-    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary shadow-sm">
+    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary shadow-sm w-100 w-md-auto">
         <i class="fas fa-plus me-2"></i>Novo Cadastro
     </a>
 </header>
 
-<div class="row mb-5">
-    <div class="col-md-4">
-        <div class="content-card border-0 shadow-sm border-start border-primary border-5">
-            <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-primary bg-opacity-10 p-3 me-3">
-                    <i class="fas fa-users fa-2x text-primary"></i>
+<div class="row g-3 mb-4">
+    <div class="col-6 col-md-4">
+        <div class="content-card border-0 shadow-sm border-start border-primary border-5 p-3 h-100">
+            <div class="d-flex align-items-center flex-column flex-md-row text-center text-md-start">
+                <div class="rounded-circle bg-primary bg-opacity-10 p-2 p-md-3 mb-2 mb-md-0 me-md-3">
+                    <i class="fas fa-users fa-lg fa-md-2x text-primary"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted mb-1 text-uppercase small fw-bold">Total Pacientes</h6>
-                    <h2 class="fw-bold mb-0">{{ pacientes.count }}</h2>
+                    <h6 class="text-muted mb-1 text-uppercase x-small-mobile fw-bold">Pacientes</h6>
+                    <h2 class="fw-bold mb-0 h4-mobile">{{ pacientes.count }}</h2>
                 </div>
             </div>
         </div>
     </div>
     
-    <div class="col-md-4">
-        <div class="content-card border-0 shadow-sm border-start border-success border-5">
-            <div class="d-flex align-items-center">
-                <div class="rounded-circle bg-success bg-opacity-10 p-3 me-3">
-                    <i class="fas fa-syringe fa-2x text-success"></i>
+    <div class="col-6 col-md-4">
+        <div class="content-card border-0 shadow-sm border-start border-success border-5 p-3 h-100">
+            <div class="d-flex align-items-center flex-column flex-md-row text-center text-md-start">
+                <div class="rounded-circle bg-success bg-opacity-10 p-2 p-md-3 mb-2 mb-md-0 me-md-3">
+                    <i class="fas fa-syringe fa-lg fa-md-2x text-success"></i>
                 </div>
                 <div>
-                    <h6 class="text-muted mb-1 text-uppercase small fw-bold">Doses Aplicadas</h6>
-                    <h2 class="fw-bold mb-0">{{ vacinas.count }}</h2>
+                    <h6 class="text-muted mb-1 text-uppercase x-small-mobile fw-bold">Doses</h6>
+                    <h2 class="fw-bold mb-0 h4-mobile">{{ vacinas.count }}</h2>
                 </div>
             </div>
         </div>
@@ -49,14 +49,14 @@
 <div class="content-card border-0 shadow-sm">
     <div class="d-flex justify-content-between align-items-center mb-4">
         <h4 class="fw-bold mb-0">Relatório de Aplicações</h4>
-        <a href="{% url 'exportar_csv' %}" class="btn btn-light btn-sm">
-    <i class="fas fa-download me-2"></i>Exportar
-</a>
+        <a href="{% url 'exportar_csv' %}" class="btn btn-light btn-sm shadow-sm">
+            <i class="fas fa-download me-2"></i>Exportar
+        </a>
     </div>
     
     <div class="table-responsive">
         <table class="table table-hover align-middle">
-            <thead>
+            <thead class="table-light">
                 <tr>
                     <th>PACIENTE</th>
                     <th>VACINA / LOTE</th>
@@ -67,23 +67,32 @@
             <tbody>
                 {% for v in vacinas %}
                 <tr>
-                    <td class="fw-bold">{{ v.paciente.nome|upper }}</td>
-                    <td>
+                    <td data-label="PACIENTE" class="fw-bold text-primary">{{ v.paciente.nome|upper }}</td>
+                    <td data-label="VACINA / LOTE">
                         <span class="badge bg-light text-dark">{{ v.nome_vacina }}</span>
-                        <small class="text-muted ms-1">#{{ v.lote }}</small>
+                        <small class="text-muted d-block d-md-inline ms-md-1">#{{ v.lote }}</small>
                     </td>
-                    <td>{{ v.data_aplicacao|date:"d/m/Y" }}</td>
-                    <td class="text-center">
+                    <td data-label="DATA">{{ v.data_aplicacao|date:"d/m/Y" }}</td>
+                    <td data-label="STATUS" class="text-md-center">
                         <span class="badge bg-success-subtle text-success rounded-pill px-3">Aplicada</span>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-4 text-muted">Nenhuma aplicação registrada hoje.</td>
+                    <td colspan="4" class="text-center py-5 text-muted">Nenhuma aplicação registrada hoje.</td>
                 </tr>
                 {% endfor %}
             </tbody>
         </table>
     </div>
 </div>
+
+<style>
+    /* Estilos extras específicos para o Dashboard */
+    @media (max-width: 768px) {
+        .x-small-mobile { font-size: 0.6rem; }
+        .h4-mobile { font-size: 1.2rem; }
+        header h2 { font-size: 1.5rem; }
+    }
+</style>
 {% endblock %}

@@ -1,12 +1,12 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<header class="d-flex justify-content-between align-items-center mb-5">
+<header class="d-flex flex-column flex-md-row justify-content-between align-items-md-center mb-4 gap-3">
     <div>
         <h2 class="fw-bold mb-0">Pacientes Cadastrados</h2>
         <p class="text-muted">Lista completa de cidadãos no sistema EasyVacc.</p>
     </div>
-    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary">
+    <a href="{% url 'cadastrar_paciente' %}" class="btn btn-primary shadow-sm">
         <i class="fas fa-user-plus me-2"></i>Novo Cadastro
     </a>
 </header>
@@ -25,14 +25,18 @@
             <tbody>
                 {% for p in pacientes %}
                 <tr>
-                    <td class="fw-bold text-uppercase">{{ p.nome }}</td>
-                    <td>{{ p.cpf }}</td>
-                    <td>{{ p.data_nascimento|date:"d/m/Y" }}</td>
-                    <td class="text-center">
-                        <a href="{% url 'editar_paciente' p.pk %}" class="btn btn-sm btn-outline-primary" title="Editar">
-                            <i class="fas fa-edit"></i>
+                    <td data-label="NOME" class="fw-bold text-uppercase text-primary">{{ p.nome }}</td>
+                    <td data-label="CPF">{{ p.cpf }}</td>
+                    <td data-label="NASCIMENTO">{{ p.data_nascimento|date:"d/m/Y" }}</td>
+                    <td data-label="AÇÕES" class="text-center">
+                        <a href="{% url 'editar_paciente' p.pk %}" class="btn btn-sm btn-outline-primary px-3" title="Editar">
+                            <i class="fas fa-edit me-1"></i> Editar
                         </a>
                     </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4" class="text-center py-4 text-muted">Nenhum paciente cadastrado.</td>
                 </tr>
                 {% endfor %}
             </tbody>

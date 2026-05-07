@@ -85,17 +85,15 @@ def cadastrar_estoque(request):
     return render(request, 'vacinas/cadastrar_estoque.html', {'form': form})
 
 def consulta_cep_postos(request):
-    cep_digitado = request.GET.get('cep')
+    cep_digitado = request.GET.get('cep', '')
     postos_encontrados = PostoSaude.objects.none()
+    bairro_detectado = None  
 
     if cep_digitado:
         cep_limpo = cep_digitado.replace("-", "").replace(" ", "")
         
-        postos_encontrados = PostoSaude.objects.annotate(
-            cep_sem_hifen=Replace('cep', Value('-'), Value(''))
-        ).filter(cep_sem_hifen__icontains=cep_limpo)
+        postos_encontrados = PostoSaude.objects.filter(cep__icontains=cep_limpo)
 
-       
         if not postos_encontrados.exists():
             url = f"https://viacep.com.br/ws/{cep_limpo}/json/"
             try:
@@ -103,7 +101,6 @@ def consulta_cep_postos(request):
                 if response.status_code == 200:
                     dados = response.json()
                     bairro_detectado = dados.get('bairro')
-                    
                     if bairro_detectado:
                         postos_encontrados = PostoSaude.objects.filter(bairro__icontains=bairro_detectado)
             except:

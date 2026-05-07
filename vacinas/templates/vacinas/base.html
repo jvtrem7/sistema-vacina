@@ -11,125 +11,165 @@
     
     <style>
         :root { 
-        --dark-sidebar: #ffffff; /* Fundo branco */
-        --bg-light: #f1f5f9; 
-        --text-main: #334155; 
-        --primary-blue: #2563eb;
+            --dark-sidebar: #ffffff; 
+            --bg-light: #f1f5f9; 
+            --text-main: #334155; 
+            --primary-blue: #2563eb;
         }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-light); color: var(--text-main); margin: 0; }
         
-        /* Sidebar SaaS (Escura e Fixa) */
-        .sidebar { background: var(--dark-sidebar); height: 100vh; position: fixed; width: 260px; z-index: 100; box-shadow: 2px 0 10px rgba(0,0,0,0.1);overflow-y: auto; 
-         scrollbar-width: none;}
-        .main-content { margin-left: 260px; padding: 2rem 3rem; min-height: 100vh; }
+        /* Sidebar SaaS */
+        .sidebar { 
+            background: var(--dark-sidebar); 
+            height: 100vh; 
+            position: fixed; 
+            width: 260px; 
+            z-index: 100; 
+            box-shadow: 2px 0 10px rgba(0,0,0,0.05);
+            overflow-y: auto; 
+            scrollbar-width: none;
+            transition: all 0.3s;
+        }
         
-        /* Estilo da Logo */
-        .logo-container { padding: 1.5rem; text-align: center; border-bottom: 1px solid #334155;
-        background: radial-gradient(circle, rgba(255,255,255,0.05) 0%, rgba(255,255,255,0) 70%);
-    border-bottom: 1px solid rgba(255,255,255,0.05); }
+        /* Ajuste do conteúdo principal */
+        .main-content { 
+            margin-left: 260px; 
+            padding: 2rem 3rem; 
+            min-height: 100vh; 
+            transition: all 0.3s;
+        }
+        
+        .logo-container { 
+            padding: 1.5rem; 
+            text-align: center; 
+            border-bottom: 1px solid #f1f5f9;
+        }
         .logo-img { max-width: 140px; }
         
-        /* Links Minimalistas do SaaS */
         .nav-link { 
-           color: #64748b;
+            color: #64748b;
             font-weight: 500; 
             padding: 0.8rem 1.5rem; 
             border-radius: 8px; 
             margin: 0.2rem 1rem; 
-            transition: all 0.3s;
+            transition: all 0.2s;
             display: flex;
             align-items: center;
-            white-space: nowrap; 
         }
-        .nav-link:hover { background-color: #eff6ff ; color: #fff; transform: translateX(5px); }
-        .nav-link.active { background-color: #334155;color: #ffff; }
-        .nav-link i { font-size: 1.1rem; }
         
-        /* Estilo dos Títulos do Menu */
-        .menu-header { color: #475569;; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 1px; padding: 1rem 2rem 0.5rem; font-weight: 700; }
+        .nav-link:hover { 
+            background-color: #eff6ff; 
+            color: var(--primary-blue); 
+            transform: translateX(5px); 
+        }
         
-        /* Cards de Conteúdo SaaS */
-        .content-card { background: white; border-radius: 12px; padding: 2rem; border: 1px solid #e2e8f0; }
-        .card-title { font-weight: 700; color: #1e293b; }
-        
-        /* Tabelas Limpas */
-        .table { --bs-table-bg: transparent; }
-        .table thead th { color: #64748b; text-transform: uppercase; font-size: 0.8rem; letter-spacing: 0.5px; font-weight: 700; }
-        .table tbody td { font-weight: 500; color: var(--text-main); }
-        
+        .nav-link.active { 
+            background-color: #334155; 
+            color: #ffffff !important; 
+        }
+
+        .menu-header { 
+            color: #94a3b8; 
+            font-size: 0.7rem; 
+            text-transform: uppercase; 
+            letter-spacing: 1px; 
+            padding: 1.5rem 2rem 0.5rem; 
+            font-weight: 700; 
+        }
+
+        /* --- RESPONSIVIDADE (CELULAR) --- */
         @media (max-width: 992px) {
-            .sidebar { width: 80px; }
-            .sidebar span, .sidebar .menu-header, .sidebar .logo-img { display: none; }
-            .sidebar .logo-container { padding: 1rem; }
-            .sidebar h4 { display: block; font-size: 1.5rem; color: #fff; }
-            .main-content { margin-left: 80px; padding: 1rem; }
-            .nav-link { padding: 0.8rem; text-align: center; justify-content: center; margin: 0.2rem; }
-            .nav-link i { margin: 0 !important; font-size: 1.3rem; }
+            .sidebar { 
+                width: 100%; 
+                height: auto; 
+                position: relative; 
+                box-shadow: 0 2px 10px rgba(0,0,0,0.05);
+            }
+            .main-content { 
+                margin-left: 0; 
+                padding: 1.5rem 1rem; 
+            }
+            .nav {
+                flex-direction: row !important;
+                overflow-x: auto;
+                padding-bottom: 10px;
+                white-space: nowrap;
+                display: flex;
+                flex-wrap: nowrap;
+            }
+            .nav-link {
+                margin: 0.2rem 0.5rem;
+                padding: 0.6rem 1rem;
+                font-size: 0.9rem;
+            }
+            .menu-header { display: none; } /* Esconde títulos no mobile para ganhar espaço */
+            .logo-img { max-width: 100px; }
+            .border-top { display: none; } /* Esconde divisores no mobile */
         }
     </style>
 </head>
 <body>
-    {% load static %} <div class="sidebar">
+    {% load static %} 
+    
+    <div class="sidebar">
         <div class="logo-container">
             <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
-            <h4 class="d-lg-none d-block m-0"><i class="fas fa-syringe"></i></h4> </div>
+        </div>
         
-        <nav class="nav flex-column mt-3">
+        <nav class="nav flex-column mt-2">
             {% if user.is_authenticated and request.resolver_match.url_name != 'caderneta_paciente' and request.resolver_match.url_name != 'busca_postos' %}
                 
                 <p class="menu-header">Administração</p>
                 <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                    <i class="fas fa-chart-line me-3"></i> <span>Dashboard</span>
+                    <i class="fas fa-chart-line me-2"></i> <span>Dashboard</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
-                    <i class="fas fa-users me-3"></i> <span>Lista de Pacientes</span>
+                    <i class="fas fa-users me-2"></i> <span>Pacientes</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
-                    <i class="fas fa-user-plus me-3"></i> <span>Novo Cadastro</span>
+                    <i class="fas fa-user-plus me-2"></i> <span>Novo</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
-                    <i class="fas fa-pills me-3"></i> <span>Registrar Dose</span>
+                    <i class="fas fa-pills me-2"></i> <span>Dose</span>
                 </a>
-            
                 <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}">
-                    <i class="fas fa-boxes me-3"></i> <span>Estoque de Vacinas</span>
+                    <i class="fas fa-boxes me-2"></i> <span>Estoque</span>
                 </a>
                 
                 <p class="menu-header">Sistema</p>
                 <a class="nav-link" href="/admin">
-                    <i class="fas fa-cog me-3"></i> <span>Painel Admin</span>
+                    <i class="fas fa-cog me-2"></i> <span>Admin</span>
                 </a>
                 
-                <div class="border-top my-3 mx-3" style="border-color: #334155 !important;"></div>
+                <div class="border-top my-2 mx-3"></div>
                 
                 <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
                     {% csrf_token %}
                 </form>
                 <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt me-3"></i> <span>Sair</span>
+                    <i class="fas fa-sign-out-alt me-2"></i> <span>Sair</span>
                 </a>
 
             {% else %}
-                {# MENU DO CIDADÃO (Público) #}
-                <p class="menu-header">Portal do Cidadão</p>
+                <p class="menu-header">Portal</p>
                 <a class="nav-link {% if request.resolver_match.url_name == 'caderneta_paciente' %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
-                    <i class="fas fa-id-card me-3"></i> <span>Minha Caderneta</span>
+                    <i class="fas fa-id-card me-2"></i> <span>Caderneta</span>
                 </a>
                 <a class="nav-link {% if request.resolver_match.url_name == 'busca_postos' %}active{% endif %}" href="{% url 'busca_postos' %}">
-                    <i class="fas fa-map-marker-alt me-3"></i> <span>Postos de Saúde</span>
+                    <i class="fas fa-map-marker-alt me-2"></i> <span>Postos</span>
                 </a>
-                
-                <div class="border-top my-3 mx-3" style="border-color: #334155 !important;"></div>
                 <a class="nav-link" href="{% url 'index_escolha' %}">
-                    <i class="fas fa-arrow-left me-3"></i> <span>Voltar ao Início</span>
+                    <i class="fas fa-arrow-left me-2"></i> <span>Voltar</span>
                 </a>
             {% endif %}
         </nav>
     </div>
 
     <div class="main-content">
-        {% block content %}
-        {% endblock %}
+        <div class="container-fluid">
+            {% block content %}
+            {% endblock %}
+        </div>
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

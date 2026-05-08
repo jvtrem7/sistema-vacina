@@ -1,42 +1,51 @@
-{% extends 'vacinas/base.html' %}
+{% extends 'vacinas/base_externo.html' %}
+{% load static %}
 
 {% block content %}
-<div class="content-card mb-4">
-    <h2 class="fw-bold"><i class="fas fa-search me-2 text-primary"></i>Consultar Minha Caderneta</h2>
-    <form method="GET" action="." class="row g-2 mt-3">
-        <div class="col-md-8">
-            <input type="text" name="cpf" class="form-control form-control-lg" placeholder="Digite seu CPF para consultar..." value="{{ cpf_busca|default:'' }}">
-        </div>
-        <div class="col-md-4">
-            <button type="submit" class="btn btn-primary btn-lg w-100">Consultar</button>
-        </div>
-    </form>
-</div>
-
-{% if paciente %}
-    <div class="alert alert-info">
-        <i class="fas fa-user me-2"></i> Mostrando resultados para: <strong>{{ paciente.nome }}</strong>
+<div class="container py-4">
+    <div class="text-center mb-5">
+        <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc" style="max-height: 80px;">
+        <h2 class="fw-bold mt-3">Minha Caderneta</h2>
+        <div class="mx-auto bg-success rounded-pill" style="width: 50px; height: 4px;"></div>
     </div>
 
-    <div class="row">
-        {% for v in vacinas %}
-        <div class="col-md-4 mb-3">
-            <div class="card border-0 shadow-sm border-start border-4 border-success">
-                <div class="card-body">
-                    <h5 class="fw-bold mb-1 text-uppercase">{{ v.nome_vacina }}</h5>
-                    <p class="text-muted small mb-2">Lote: #{{ v.lote }}</p>
-                    <div class="d-flex justify-content-between align-items-center">
-                        <span class="badge bg-success-subtle text-success">Aplicada</span>
-                        <span class="text-secondary small">{{ v.data_aplicacao|date:"d/m/Y" }}</span>
-                    </div>
+    <div class="row justify-content-center">
+        <div class="col-md-10 col-lg-8">
+            {% if not doses %}
+                <div class="card border-0 shadow-sm p-4 text-center">
+                    <h5>Consulte suas vacinas pelo CPF</h5>
+                    <form method="GET" action="{% url 'caderneta_paciente' %}" class="mt-3">
+                        <input type="text" name="cpf" class="form-control mb-3 text-center" placeholder="000.000.000-00">
+                        <button type="submit" class="btn btn-success w-100 fw-bold">CONSULTAR</button>
+                    </form>
                 </div>
-            </div>
+            {% else %}
+                {% for dose in doses %}
+                    <div class="card mb-3 shadow-sm border-0">
+                        <div class="card-body">
+                            <h5 class="fw-bold text-success">{{ dose.vacina.nome }}</h5>
+                            <p class="mb-1"><strong>Data:</strong> {{ dose.data_aplicacao|date:"d/m/Y" }}</p>
+                            <p class="mb-0"><strong>Posto:</strong> {{ dose.posto.nome }}</p>
+                        </div>
+                    </div>
+                {% endfor %}
+            {% endif %}
         </div>
-        {% empty %}
-        <div class="col-12 text-center py-5">
-            <p class="text-muted">Nenhum registro de vacina encontrado para este CPF.</p>
-        </div>
-        {% endfor %}
     </div>
-{% endif %}
+
+    <div class="fixed-bottom bg-white border-top d-flex justify-content-around py-3 d-md-none">
+        <a href="{% url 'caderneta_paciente' %}" class="text-center text-decoration-none text-success">
+            <i class="fas fa-id-card d-block mb-1"></i>
+            <span style="font-size: 0.7rem;">Caderneta</span>
+        </a>
+        <a href="{% url 'busca_postos' %}" class="text-center text-decoration-none text-muted">
+            <i class="fas fa-map-marker-alt d-block mb-1"></i>
+            <span style="font-size: 0.7rem;">Postos</span>
+        </a>
+        <a href="{% url 'index_escolha' %}" class="text-center text-decoration-none text-muted">
+            <i class="fas fa-arrow-left d-block mb-1"></i>
+            <span style="font-size: 0.7rem;">Sair</span>
+        </a>
+    </div>
+</div>
 {% endblock %}

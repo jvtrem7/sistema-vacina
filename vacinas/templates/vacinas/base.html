@@ -97,21 +97,38 @@
             <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
         </div>
         <nav class="nav flex-column">
-            {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
-                <p class="menu-header" style="padding: 1.2rem 1.2rem 0.4rem; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">Administração</p>
-                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}"><i class="fas fa-users"></i> Pacientes</a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}"><i class="fas fa-user-plus"></i> Novo</a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}"><i class="fas fa-pills"></i> Dose</a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}"><i class="fas fa-boxes"></i> Estoque</a>
-                <a class="nav-link text-danger mt-4" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i> Sair</a>
-            {% else %}
-                <p class="menu-header" style="padding: 1.2rem 1.2rem 0.4rem; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">Portal</p>
-                <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}"><i class="fas fa-search"></i> Consultar CPF</a>
-                <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}"><i class="fas fa-map-marker-alt"></i> Buscar Postos</a>
-                <a class="nav-link mt-auto" href="{% url 'index_escolha' %}"><i class="fas fa-chevron-left"></i> Voltar</a>
-            {% endif %}
-        </nav>
+    <!-- Links do Portal (Sempre Visíveis) -->
+    <p class="menu-header">Portal do Cidadão</p>
+    <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
+        <i class="fas fa-search"></i> <span>Consultar CPF</span>
+    </a>
+    <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}">
+        <i class="fas fa-map-marker-alt"></i> <span>Buscar Postos</span>
+    </a>
+
+    <!-- Links de Gestão (Sempre Visíveis) -->
+    <p class="menu-header">Gestão Interna</p>
+    <a class="nav-link" href="{% url 'home' %}">
+        <i class="fas fa-chart-line"></i> <span>Dashboard</span>
+    </a>
+    <a class="nav-link" href="/admin">
+        <i class="fas fa-lock"></i> <span>Painel Admin</span>
+    </a>
+
+    <!-- Link de Sair (Só aparece se estiver logado) -->
+    {% if user.is_authenticated %}
+        <a class="nav-link text-danger mt-auto" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+            <i class="fas fa-sign-out-alt"></i> <span>Sair da Sessão</span>
+        </a>
+    {% endif %}
+
+    <div class="mt-4">
+        <hr class="mx-3 opacity-10">
+        <a class="nav-link" href="{% url 'index_escolha' %}">
+            <i class="fas fa-chevron-left"></i> <span>Início</span>
+        </a>
+    </div>
+</nav>
     </div>
 
     <div class="main-content">
@@ -129,7 +146,7 @@
         <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-house-chimney"></i></a>
         <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}"><i class="fa-solid fa-user-group"></i></a>
         <a href="{% url 'registrar_dose' %}" class="{% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
-        
+        <a href="/admin"><i class="fa-solid fa-user-lock"></i></a>
         <!-- Botão Sair no Mobile -->
         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-danger">
             <i class="fa-solid fa-right-from-bracket"></i>

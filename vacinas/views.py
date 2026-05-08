@@ -7,6 +7,7 @@ from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
 from django.db.models.functions import Replace
 from django.db.models import Value
+from django.db.models import Q
 
 @login_required
 def home(request):
@@ -85,23 +86,28 @@ def cadastrar_estoque(request):
     return render(request, 'vacinas/cadastrar_estoque.html', {'form': form})
 
 def consulta_cep_postos(request):
-    cep_digitado = request.GET.get('cep', '')
-    postos_encontrados = PostoSaude.objects.none()
-    bairro_detectado = None  
+    cep_digitado = request.GET.get('cep', '').strip()
+    postos_encontrados = None
+    bairro_detectado = None 
 
     if cep_digitado:
-        cep_limpo = cep_digitado.replace("-", "").replace(" ", "")
+        cep_limpo = cep_digitado.replace("-", "").replace(" ", "").replace(".", "")
         
-        postos_encontrados = PostoSaude.objects.filter(cep__icontains=cep_limpo)
+        # 1. Tenta buscar no banco pelo número do CEP (com ou sem hífen)
+        postos_encontrados = PostoSaude.objects.filter(
+            Q(cep=cep_digitado) | Q(cep=cep_limpo)
+        )
 
+        # 2. Se não achou pelo número, pede ajuda ao ViaCEP para saber o bairro
         if not postos_encontrados.exists():
             url = f"https://viacep.com.br/ws/{cep_limpo}/json/"
             try:
-                response = requests.get(url)
+                response = requests.get(url, timeout=5)
                 if response.status_code == 200:
                     dados = response.json()
-                    bairro_detectado = dados.get('bairro')
-                    if bairro_detectado:
+                    if 'erro' not in dados:
+                        bairro_detectado = dados.get('bairro')
+                        # 3. Busca postos que tenham esse bairro cadastrado
                         postos_encontrados = PostoSaude.objects.filter(bairro__icontains=bairro_detectado)
             except:
                 pass 
@@ -136,3 +142,24 @@ def exportar_dados_csv(request):
         ])
 
     return response
+
+def busca_postos(request):
+    cep_digitado = request.GET.get('cep', '').strip()
+    postos_encontrados = PostoSaude.objects.none()
+    
+    if cep_digitado:
+        # Limpa o CEP para buscar no banco
+        cep_limpo = cep_digitado.replace("-", "").replace(" ", "")
+        
+        # Busca por CEP exato ou pelo bairro (caso você queira expandir a lógica)
+        postos_encontrados = PostoSaude.objects.filter(cep__icontains=cep_limpo)
+        
+        # Plano B: Se não achar pelo CEP, você pode usar a lógica do ViaCEP que fizemos antes
+        if not postos_encontrados.exists():
+            # (Opcional) Chamar API do ViaCEP aqui para filtrar por bairro
+            pass
+
+    return render(request, 'vacinas/postos.html', {
+        'postos': postos_encontrados,
+        'cep_pesquisado': cep_digitado
+    })

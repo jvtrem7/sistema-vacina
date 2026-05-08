@@ -1,11 +1,13 @@
 {% extends 'vacinas/base_externo.html' %}
 {% load static %}
+
 <head>
-<link rel="shortcut icon" type="image/png" href="{% static 'vacinas/easyvacc.png' %}">
+    <link rel="shortcut icon" type="image/png" href="{% static 'vacinas/easyvacc.png' %}">
     <title>EasyVacc</title>
 </head>
+
 {% block content %}
-<div class="container vh-100 d-flex flex-column justify-content-center overflow-hidden">
+<div class="container min-vh-100 d-flex flex-column justify-content-center py-4">
     
     <div class="text-center mb-4 animate-fade-in">
         <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc Logo" style="max-height: 100px; width: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
@@ -17,7 +19,6 @@
     </div>
 
     <div class="row justify-content-center g-4">
-        
         <div class="col-lg-5 col-md-6">
             <div class="card border-0 shadow-lg transition-card overflow-hidden" style="border-radius: 20px;">
                 <div class="p-4 bg-gradient-blue text-white text-center position-relative">
@@ -57,23 +58,32 @@
 </div>
 
 <style>
-    /* Ajuste 6: Forçar o body a não ter scroll se possível */
-    body { overflow: hidden; background-color: #f8fafc; }
+    /* MUDANÇA 2: Liberar rolagem no body de forma inteligente */
+    body { 
+        overflow-y: auto !important; /* Permite rolar */
+        overflow-x: hidden; 
+        background-color: #f8fafc; 
+        min-height: 100vh;
+    }
+
+    /* MUDANÇA 3: Ajuste para telas pequenas (iPhone) */
+    @media (max-width: 576px) {
+        .container {
+            justify-content: flex-start !important; /* Não centraliza no topo se a tela for pequena */
+            padding-top: 2rem;
+        }
+    }
 
     .bg-gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
     .bg-gradient-green { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
-
     .transition-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
     .transition-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }
-    
     .hover-lift { transition: transform 0.2s ease; }
     .hover-lift:hover { transform: scale(1.01); }
-
     .decoration-circle {
         position: absolute; top: -15px; right: -15px; width: 80px; height: 80px;
         background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;
     }
-
     .animate-fade-in { animation: fadeIn 0.8s ease-out; }
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }

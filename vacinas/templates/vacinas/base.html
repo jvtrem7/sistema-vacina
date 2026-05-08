@@ -2,7 +2,7 @@
 <html lang="pt-br">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>EasyVacc | Gestão de Imunização</title>
     
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
@@ -11,8 +11,9 @@
     
 <style>
     :root {
-        --sidebar-width: 240px; /* Reduzi um pouco a largura */
+        --sidebar-width: 240px;
         --primary-color: #2563eb;
+        --dark-nav: #1a1a1a;
     }
 
     html, body {
@@ -21,30 +22,22 @@
         font-family: 'Inter', sans-serif;
     }
 
-    /* SIDEBAR CORRIGIDA */
+    /* --- SIDEBAR DESKTOP --- */
     .sidebar { 
         background: #ffffff; 
         height: 100vh; 
         position: fixed; 
-        top: 0;
-        left: 0;
+        top: 0; left: 0;
         width: var(--sidebar-width); 
         z-index: 1000; 
         border-right: 1px solid #e2e8f0;
         display: flex;
         flex-direction: column;
         overflow-y: auto;
-        transition: none !important; 
     }
 
     .logo-container { padding: 1.5rem 1rem; text-align: center; }
-    .logo-img { width: 100%; max-width: 130px; height: auto; } /* Logo menor para caber tudo */
-
-    .nav.flex-column {
-        display: flex !important;
-        flex-direction: column !important;
-        padding-bottom: 20px;
-    }
+    .logo-img { width: 100%; max-width: 130px; height: auto; }
 
     .nav-link {
         padding: 0.7rem 1.2rem;
@@ -56,149 +49,168 @@
         font-size: 0.9rem;
     }
 
-    /* ÍCONES ALINHADOS */
-    .nav-link i {
-        width: 28px; 
-        font-size: 1.1rem;
-        display: flex;
-        justify-content: center;
-        margin-right: 10px;
-    }
-
+    .nav-link i { width: 28px; text-align: center; margin-right: 10px; }
     .nav-link:hover, .nav-link.active {
         background: #eff6ff;
         color: var(--primary-color);
         border-right: 4px solid var(--primary-color);
     }
 
-    .menu-header {
-        padding: 1.2rem 1.2rem 0.4rem;
-        text-transform: uppercase;
-        font-size: 0.65rem;
-        font-weight: 700;
-        color: #94a3b8;
-        letter-spacing: 1px;
-    }
-
-    /* CONTEÚDO PRINCIPAL - POSICIONAMENTO REAL */
     .main-content { 
         margin-left: var(--sidebar-width); 
         padding: 2rem; 
-        animation: simpleFade 0.2s ease-in;
         width: calc(100% - var(--sidebar-width));
         min-height: 100vh;
     }
 
-    /* REMOVER BOTÃO INDESEJADO NO DASHBOARD (Se ele existir no content) */
-    .main-content a[href*="cadastrar_paciente"].btn-primary {
-        /* Se você quer que o botão suma apenas no dashboard, certifique-se de apagar no home.html */
-    }
+    /* --- ELEMENTOS EXCLUSIVOS MOBILE (Escondidos no PC) --- */
+    .mobile-header, .mobile-app-nav { display: none; }
 
-    /* RESPONSIVO CELULAR */
+    /* --- RESPONSIVO CELULAR (ESTILO APP MODERNO) --- */
     @media (max-width: 991px) {
-        .sidebar { width: 100%; height: auto; position: relative; overflow-y: visible; }
-        .main-content { margin-left: 0; width: 100%; padding-bottom: 90px; }
-        .nav.flex-column {
-            flex-direction: row !important;
-            position: fixed;
-            bottom: 0;
-            background: white;
-            width: 100%;
-            border-top: 1px solid #e2e8f0;
-            justify-content: space-around;
-            padding: 5px 0;
-        }
-        .nav-link { flex-direction: column; padding: 8px 5px !important; font-size: 0.6rem; }
-        .nav-link i { margin: 0; width: auto; }
-        .menu-header, .logo-container { display: none !important; }
+        body { background-color: #ffffff; }
         
-        @keyframes simpleFade {
-    from { 
-        opacity: 0.7; 
-        transform: translateY(5px); /* Dá um leve efeito de subida muito sutil */
-    }
-    to { 
-        opacity: 1; 
-        transform: translateY(0); 
-    }
-}
+        .sidebar { display: none !important; } /* Esconde a sidebar lateral no mobile */
 
-/* Ajuste para evitar que a Sidebar mostre uma barra de rolagem horizontal feia */
-.sidebar::-webkit-scrollbar {
-    width: 4px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
-}
+        .main-content {
+            margin-left: 0;
+            width: 100%;
+            padding: 1.5rem;
+            padding-bottom: 100px; /* Espaço para a barra flutuante */
+        }
+
+        /* Saudação Inicial */
+        .mobile-header {
+            display: block !important;
+            margin-bottom: 2rem;
+        }
+        .mobile-header h1 { font-weight: 700; font-size: 1.8rem; margin-bottom: 5px; }
+        .mobile-header p { color: #888; font-size: 0.9rem; }
+
+        /* Barra de Navegação Estilo App (Flutuante e Escura) */
+        .mobile-app-nav {
+            display: flex !important;
+            position: fixed;
+            bottom: 20px;
+            left: 20px;
+            right: 20px;
+            background: var(--dark-nav);
+            border-radius: 30px;
+            padding: 8px 15px;
+            justify-content: space-around;
+            align-items: center;
+            z-index: 9999;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+        }
+
+        .mobile-app-nav a {
+            color: #666;
+            font-size: 1.3rem;
+            padding: 10px;
+            text-decoration: none;
+            transition: 0.3s;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+
+        .mobile-app-nav a.active { color: #ffffff; }
+
+        /* Estilo para os Cards que você vai usar no Dashboard */
+        .card-modern {
+            border-radius: 20px;
+            border: none;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+            transition: transform 0.2s;
+        }
     }
 </style>
 </head>
 <body>
     {% load static %} 
     
-  <div class="sidebar">
-    <div class="logo-container">
-        <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
-    </div>
-    
-    <nav class="nav flex-column">
-        {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
-            <p class="menu-header">Administração</p>
-            <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                <i class="fas fa-chart-line"></i> <span>Dashboard</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
-                <i class="fas fa-users"></i> <span>Pacientes</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
-                <i class="fas fa-user-plus"></i> <span>Novo</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
-                <i class="fas fa-pills"></i> <span>Dose</span>
-            </a>
-            <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}">
-                <i class="fas fa-boxes"></i> <span>Estoque</span>
-            </a>
-
-            <p class="menu-header">Sistema</p>
-            <a class="nav-link" href="/admin">
-                <i class="fas fa-cog"></i> <span>Admin</span>
-            </a>
-            
-            <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                {% csrf_token %}
-            </form>
-            <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
-            </a>
-
-        {% else %}
-            <p class="menu-header">Portal do Cidadão</p>
-            
-            <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
-                <i class="fas fa-search"></i> <span>Consultar CPF</span>
-            </a>
-            
-            <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}">
-                <i class="fas fa-map-marker-alt"></i> <span>Buscar Postos</span>
-            </a>
-
-            <div class="mt-auto mb-4">
-                <hr class="mx-3 opacity-10">
-                <a class="nav-link" href="{% url 'index_escolha' %}">
-                    <i class="fas fa-chevron-left"></i> <span>Voltar ao Início</span>
+    <!-- SIDEBAR DESKTOP -->
+    <div class="sidebar">
+        <div class="logo-container">
+            <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
+        </div>
+        
+        <nav class="nav flex-column">
+            {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
+                <p class="menu-header">Administração</p>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
+                    <i class="fas fa-chart-line"></i> <span>Dashboard</span>
                 </a>
-            </div>
-        {% endif %}
-    </nav>
-</div>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
+                    <i class="fas fa-users"></i> <span>Pacientes</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
+                    <i class="fas fa-user-plus"></i> <span>Novo</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
+                    <i class="fas fa-pills"></i> <span>Dose</span>
+                </a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}">
+                    <i class="fas fa-boxes"></i> <span>Estoque</span>
+                </a>
 
+                <p class="menu-header">Sistema</p>
+                <a class="nav-link" href="/admin">
+                    <i class="fas fa-cog"></i> <span>Admin</span>
+                </a>
+                
+                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
+                    {% csrf_token %}
+                </form>
+                <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
+                    <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
+                </a>
+
+            {% else %}
+                <p class="menu-header">Portal do Cidadão</p>
+                <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
+                    <i class="fas fa-search"></i> <span>Consultar CPF</span>
+                </a>
+                <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}">
+                    <i class="fas fa-map-marker-alt"></i> <span>Buscar Postos</span>
+                </a>
+
+                <div class="mt-auto mb-4">
+                    <hr class="mx-3 opacity-10">
+                    <a class="nav-link" href="{% url 'index_escolha' %}">
+                        <i class="fas fa-chevron-left"></i> <span>Voltar ao Início</span>
+                    </a>
+                </div>
+            {% endif %}
+        </nav>
+    </div>
+
+    <!-- CONTEÚDO PRINCIPAL -->
     <div class="main-content">
+        <!-- Saudação Mobile (Apenas Mobile) -->
+        <div class="mobile-header">
+            <h1>Olá, {{ user.first_name|default:"Cidadão" }}!</h1>
+            <p>Bem-vindo ao EasyVacc Saquarema.</p>
+        </div>
+
         <div class="container-fluid">
             {% block content %}
             {% endblock %}
         </div>
+    </div>
+
+    <!-- BARRA DE NAVEGAÇÃO INFERIOR ESTILO APP (Apenas Mobile) -->
+    <div class="mobile-app-nav">
+        {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fas fa-home"></i></a>
+            <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}"><i class="fas fa-users"></i></a>
+            <a href="{% url 'registrar_dose' %}" class="{% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}"><i class="fas fa-plus-circle"></i></a>
+            <a href="{% url 'listar_estoque' %}" class="{% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}"><i class="fas fa-boxes"></i></a>
+        {% else %}
+            <a href="{% url 'index_escolha' %}"><i class="fas fa-home"></i></a>
+            <a href="{% url 'caderneta_paciente' %}" class="{% if 'caderneta' in request.path %}active{% endif %}"><i class="fas fa-search"></i></a>
+            <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}"><i class="fas fa-map-marker-alt"></i></a>
+        {% endif %}
     </div>
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>

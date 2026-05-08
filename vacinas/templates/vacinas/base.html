@@ -13,203 +13,130 @@
     :root {
         --sidebar-width: 240px;
         --primary-color: #2563eb;
-        --dark-nav: #1a1a1a;
     }
 
     html, body {
         overflow-x: hidden;
         background-color: #f8fafc;
         font-family: 'Inter', sans-serif;
+        color: #1e293b;
     }
 
-    /* --- SIDEBAR DESKTOP --- */
+    /* --- SIDEBAR DESKTOP (MANTIDA PERFEITA) --- */
     .sidebar { 
-        background: #ffffff; 
-        height: 100vh; 
-        position: fixed; 
-        top: 0; left: 0;
-        width: var(--sidebar-width); 
-        z-index: 1000; 
-        border-right: 1px solid #e2e8f0;
-        display: flex;
-        flex-direction: column;
-        overflow-y: auto;
+        background: #ffffff; height: 100vh; position: fixed; 
+        top: 0; left: 0; width: var(--sidebar-width); z-index: 1000; 
+        border-right: 1px solid #e2e8f0; display: flex; flex-direction: column;
     }
-
     .logo-container { padding: 1.5rem 1rem; text-align: center; }
     .logo-img { width: 100%; max-width: 130px; height: auto; }
-
     .nav-link {
-        padding: 0.7rem 1.2rem;
-        color: #64748b;
-        display: flex !important;
-        align-items: center;
-        text-decoration: none;
-        font-weight: 500;
-        font-size: 0.9rem;
+        padding: 0.7rem 1.2rem; color: #64748b; display: flex !important;
+        align-items: center; text-decoration: none; font-weight: 500; font-size: 0.9rem;
     }
-
     .nav-link i { width: 28px; text-align: center; margin-right: 10px; }
-    .nav-link:hover, .nav-link.active {
-        background: #eff6ff;
-        color: var(--primary-color);
-        border-right: 4px solid var(--primary-color);
-    }
+    .nav-link:hover, .nav-link.active { background: #eff6ff; color: var(--primary-color); border-right: 4px solid var(--primary-color); }
+    .main-content { margin-left: var(--sidebar-width); padding: 2rem; width: calc(100% - var(--sidebar-width)); min-height: 100vh; }
 
-    .main-content { 
-        margin-left: var(--sidebar-width); 
-        padding: 2rem; 
-        width: calc(100% - var(--sidebar-width));
-        min-height: 100vh;
-    }
-
-    /* --- ELEMENTOS EXCLUSIVOS MOBILE (Escondidos no PC) --- */
-    .mobile-header, .mobile-app-nav { display: none; }
-
-    /* --- RESPONSIVO CELULAR (ESTILO APP MODERNO) --- */
+    /* --- MOBILE REESTILIZADO (LIMPO & SEM POLUIÇÃO) --- */
     @media (max-width: 991px) {
         body { background-color: #ffffff; }
-        
-        .sidebar { display: none !important; } /* Esconde a sidebar lateral no mobile */
+        .sidebar { display: none !important; }
+        .main-content { margin-left: 0; width: 100%; padding: 1.2rem; padding-bottom: 120px; }
 
-        .main-content {
-            margin-left: 0;
-            width: 100%;
-            padding: 1.5rem;
-            padding-bottom: 100px; /* Espaço para a barra flutuante */
-        }
+        /* Saudação Apple Style */
+        .mobile-header { display: block !important; margin: 1rem 0 2rem 0; }
+        .mobile-header h1 { font-weight: 700; font-size: 1.6rem; letter-spacing: -0.5px; margin-bottom: 2px; }
+        .mobile-header p { color: #86868b; font-size: 0.95rem; }
 
-        /* Saudação Inicial */
-        .mobile-header {
-            display: block !important;
-            margin-bottom: 2rem;
-        }
-        .mobile-header h1 { font-weight: 700; font-size: 1.8rem; margin-bottom: 5px; }
-        .mobile-header p { color: #888; font-size: 0.9rem; }
-
-        /* Barra de Navegação Estilo App (Flutuante e Escura) */
+        /* Navegação Flutuante de Vidro */
         .mobile-app-nav {
-            display: flex !important;
-            position: fixed;
-            bottom: 20px;
-            left: 20px;
-            right: 20px;
-            background: var(--dark-nav);
-            border-radius: 30px;
-            padding: 8px 15px;
-            justify-content: space-around;
-            align-items: center;
-            z-index: 9999;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.3);
+            display: flex !important; position: fixed; bottom: 30px; left: 50%;
+            transform: translateX(-50%); width: 90%; max-width: 380px;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 10px;
+            justify-content: space-around; align-items: center; z-index: 9999;
+            border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+        }
+        .mobile-app-nav a { color: #86868b; font-size: 1.3rem; padding: 10px; text-decoration: none; transition: 0.3s; }
+        .mobile-app-nav a.active { color: var(--primary-color); transform: translateY(-2px); }
+
+        /* BOTÃO COLAPSO LIMPO */
+        .btn-collapse-clean {
+            background: #f1f5f9; color: #475569; border: none; padding: 15px 20px;
+            border-radius: 18px; width: 100%; text-align: left; display: flex;
+            justify-content: space-between; align-items: center; font-weight: 600;
         }
 
-        .mobile-app-nav a {
-            color: #666;
-            font-size: 1.3rem;
-            padding: 10px;
-            text-decoration: none;
-            transition: 0.3s;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
+        /* TRANSFORMAÇÃO DE TABELA EM CARDS (FIM DO ARRASTAR) */
+        .table-responsive { border: none !important; }
+        .table-mobile-cards thead { display: none; }
+        .table-mobile-cards, .table-mobile-cards tbody, .table-mobile-cards tr, .table-mobile-cards td { display: block; width: 100%; }
+        .table-mobile-cards tr { 
+            margin-bottom: 12px; background: #f8fafc; border-radius: 15px; 
+            padding: 12px; border: 1px solid #f1f5f9;
         }
-
-        .mobile-app-nav a.active { color: #ffffff; }
-
-        /* Estilo para os Cards que você vai usar no Dashboard */
-        .card-modern {
-            border-radius: 20px;
-            border: none;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.05);
-            transition: transform 0.2s;
+        .table-mobile-cards td { 
+            text-align: right; padding: 8px 10px; position: relative; 
+            border: none; font-size: 0.9rem;
+        }
+        .table-mobile-cards td::before {
+            content: attr(data-label); position: absolute; left: 10px;
+            font-weight: 700; color: #94a3b8; font-size: 0.8rem; text-transform: uppercase;
         }
     }
+
+    .mobile-header, .mobile-app-nav { display: none; }
 </style>
 </head>
 <body>
     {% load static %} 
     
-    <!-- SIDEBAR DESKTOP -->
     <div class="sidebar">
         <div class="logo-container">
             <img src="{% static 'vacinas/easyvacc.png' %}" alt="easyvacc" class="logo-img">
         </div>
-        
         <nav class="nav flex-column">
             {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
-                <p class="menu-header">Administração</p>
-                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}">
-                    <i class="fas fa-chart-line"></i> <span>Dashboard</span>
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}">
-                    <i class="fas fa-users"></i> <span>Pacientes</span>
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}">
-                    <i class="fas fa-user-plus"></i> <span>Novo</span>
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}">
-                    <i class="fas fa-pills"></i> <span>Dose</span>
-                </a>
-                <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}">
-                    <i class="fas fa-boxes"></i> <span>Estoque</span>
-                </a>
-
-                <p class="menu-header">Sistema</p>
-                <a class="nav-link" href="/admin">
-                    <i class="fas fa-cog"></i> <span>Admin</span>
-                </a>
-                
-                <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">
-                    {% csrf_token %}
-                </form>
-                <a class="nav-link text-danger" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
-                    <i class="fas fa-sign-out-alt"></i> <span>Sair</span>
-                </a>
-
+                <p class="menu-header" style="padding: 1.2rem 1.2rem 0.4rem; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">Administração</p>
+                <a class="nav-link {% if request.resolver_match.url_name == 'home' %}active{% endif %}" href="{% url 'home' %}"><i class="fas fa-chart-line"></i> Dashboard</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}" href="{% url 'listar_pacientes' %}"><i class="fas fa-users"></i> Pacientes</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'cadastrar_paciente' %}active{% endif %}" href="{% url 'cadastrar_paciente' %}"><i class="fas fa-user-plus"></i> Novo</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}" href="{% url 'registrar_dose' %}"><i class="fas fa-pills"></i> Dose</a>
+                <a class="nav-link {% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}" href="{% url 'listar_estoque' %}"><i class="fas fa-boxes"></i> Estoque</a>
+                <a class="nav-link text-danger mt-4" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();"><i class="fas fa-sign-out-alt"></i> Sair</a>
             {% else %}
-                <p class="menu-header">Portal do Cidadão</p>
-                <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}">
-                    <i class="fas fa-search"></i> <span>Consultar CPF</span>
-                </a>
-                <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}">
-                    <i class="fas fa-map-marker-alt"></i> <span>Buscar Postos</span>
-                </a>
-
-                <div class="mt-auto mb-4">
-                    <hr class="mx-3 opacity-10">
-                    <a class="nav-link" href="{% url 'index_escolha' %}">
-                        <i class="fas fa-chevron-left"></i> <span>Voltar ao Início</span>
-                    </a>
-                </div>
+                <p class="menu-header" style="padding: 1.2rem 1.2rem 0.4rem; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">Portal</p>
+                <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}"><i class="fas fa-search"></i> Consultar CPF</a>
+                <a class="nav-link {% if 'postos' in request.path %}active{% endif %}" href="{% url 'busca_postos' %}"><i class="fas fa-map-marker-alt"></i> Buscar Postos</a>
+                <a class="nav-link mt-auto" href="{% url 'index_escolha' %}"><i class="fas fa-chevron-left"></i> Voltar</a>
             {% endif %}
         </nav>
     </div>
 
-    <!-- CONTEÚDO PRINCIPAL -->
     <div class="main-content">
-        <!-- Saudação Mobile (Apenas Mobile) -->
         <div class="mobile-header">
-            <h1>Olá, {{ user.first_name|default:"Cidadão" }}!</h1>
-            <p>Bem-vindo ao EasyVacc Saquarema.</p>
+            <h1>Olá, {{ user.first_name|default:"Cidadão" }}</h1>
+            <p>EasyVacc Saquarema • {% now "d/m" %}</p>
         </div>
 
         <div class="container-fluid">
-            {% block content %}
-            {% endblock %}
+            {% block content %}{% endblock %}
         </div>
     </div>
 
-    <!-- BARRA DE NAVEGAÇÃO INFERIOR ESTILO APP (Apenas Mobile) -->
+    <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">{% csrf_token %}</form>
+
     <div class="mobile-app-nav">
         {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
-            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fas fa-home"></i></a>
-            <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}"><i class="fas fa-users"></i></a>
-            <a href="{% url 'registrar_dose' %}" class="{% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}"><i class="fas fa-plus-circle"></i></a>
-            <a href="{% url 'listar_estoque' %}" class="{% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}"><i class="fas fa-boxes"></i></a>
+            <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-house-chimney"></i></a>
+            <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}"><i class="fa-solid fa-user-group"></i></a>
+            <a href="{% url 'registrar_dose' %}" class="{% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
+            <a href="{% url 'listar_estoque' %}" class="{% if request.resolver_match.url_name == 'listar_estoque' %}active{% endif %}"><i class="fa-solid fa-box-archive"></i></a>
         {% else %}
-            <a href="{% url 'index_escolha' %}"><i class="fas fa-home"></i></a>
-            <a href="{% url 'caderneta_paciente' %}" class="{% if 'caderneta' in request.path %}active{% endif %}"><i class="fas fa-search"></i></a>
-            <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}"><i class="fas fa-map-marker-alt"></i></a>
+            <a href="{% url 'index_escolha' %}"><i class="fa-solid fa-house"></i></a>
+            <a href="{% url 'caderneta_paciente' %}" class="{% if 'caderneta' in request.path %}active{% endif %}"><i class="fa-solid fa-address-card"></i></a>
+            <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}"><i class="fa-solid fa-location-dot"></i></a>
         {% endif %}
     </div>
 

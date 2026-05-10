@@ -1,6 +1,7 @@
 from django.db import models
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from django.core.exceptions import ValidationError
 
 class Paciente(models.Model):
     nome = models.CharField(max_length=200)
@@ -28,21 +29,45 @@ class Estoque(models.Model):
     posto = models.ForeignKey(PostoSaude, on_delete=models.CASCADE, related_name='vacinas_estoque', null=True, blank=True)
 
     def __str__(self):
-        return f"{self.nome_vacina} - Lote: {self.lote}"
+        return f"{self.nome_vacina} - Lote: {self.lote} ({self.posto.nome if self.posto else 'Sem Posto'})"
 
 class Vacina(models.Model):
-    nome_vacina = models.CharField(max_length=100)
+    nome_vacina = models.CharField(max_length=100) # Nome descritivo
     lote = models.CharField(max_length=50)
     data_aplicacao = models.DateTimeField(auto_now_add=True)
     paciente = models.ForeignKey(Paciente, on_delete=models.CASCADE)
+    
+    # Este é o campo chave que liga a aplicação ao item físico no estoque
     item_estoque = models.ForeignKey(Estoque, on_delete=models.SET_NULL, null=True, verbose_name="Vacina do Estoque")
-    posto = models.ForeignKey('PostoSaude', on_delete=models.SET_NULL, null=True, blank=True)
+    
+    # Posto onde a vacina foi aplicada
+    posto = models.ForeignKey(PostoSaude, on_delete=models.SET_NULL, null=True, blank=True)
+
+    def clean(self):
+        # Validação para garantir que não aplique vacina sem estoque
+        if self.item_estoque and self.item_estoque.quantidade_atual <= 0:
+            raise ValidationError(f"O estoque da vacina {self.item_estoque.nome_vacina} está esgotado neste posto.")
+
+    def save(self, *args, **kwargs):
+        # Se selecionou um item do estoque, puxa o nome, lote e posto automaticamente para a aplicação
+        if self.item_estoque:
+            self.nome_vacina = self.item_estoque.nome_vacina
+            self.lote = self.item_estoque.lote
+            self.posto = self.item_estoque.posto
+        
+        self.full_clean() # Executa a validação do clean() antes de salvar
+        super().save(*args, **kwargs)
 
     def __str__(self):
         return f"{self.nome_vacina} - {self.paciente.nome}"
 
+# --- SINAL PARA BAIXAR ESTOQUE AUTOMATICAMENTE ---
 @receiver(post_save, sender=Vacina)
 def baixar_estoque(sender, instance, created, **kwargs):
+    """
+    Sempre que uma nova Vacina (aplicação) for criada, 
+    subtrai 1 unidade do item correspondente no Estoque.
+    """
     if created and instance.item_estoque:
         estoque = instance.item_estoque
         if estoque.quantidade_atual > 0:

@@ -5,19 +5,17 @@ from django.contrib.auth.decorators import login_required
 from .models import Vacina, Paciente, Estoque, PostoSaude
 from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
-from django.db.models.functions import Replace
-from django.db.models import Value
 from django.db.models import Q
+from django.http import JsonResponse
 
 @login_required
 def home(request):
-    todas_vacinas = Vacina.objects.all().order_by('-data_aplicacao')
+    # Usamos select_related para carregar os dados de paciente e estoque de uma vez só (melhora a performance)
+    todas_vacinas = Vacina.objects.all().select_related('paciente', 'item_estoque__posto').order_by('-data_aplicacao')
     total_pacientes = Paciente.objects.count()
-    todos_pacientes = Paciente.objects.all()
     return render(request, 'vacinas/index.html', {
         'vacinas': todas_vacinas,
         'total_pacientes': total_pacientes,
-        'pacientes': todos_pacientes
     })
 
 @login_required
@@ -38,6 +36,9 @@ def registrar_dose(request):
         if form.is_valid():
             form.save()
             return redirect('home')
+        else:
+            # Isso vai imprimir o erro no terminal do seu PC para você ver o que é
+            print(form.errors) 
     else:
         form = VacinaForm()
     return render(request, 'vacinas/registrar_dose.html', {'form': form})
@@ -71,7 +72,8 @@ def index_escolha(request):
 
 @login_required
 def listar_estoque(request):
-    itens = Estoque.objects.all()
+    # Exibe os itens de estoque e o posto ao qual pertencem
+    itens = Estoque.objects.all().select_related('posto')
     return render(request, 'vacinas/estoque.html', {'itens': itens})
 
 @login_required
@@ -85,20 +87,23 @@ def cadastrar_estoque(request):
         form = EstoqueForm()
     return render(request, 'vacinas/cadastrar_estoque.html', {'form': form})
 
-def consulta_cep_postos(request):
+def busca_postos(request):
+    """
+    Função unificada para busca de postos por CEP ou Bairro (ViaCEP)
+    """
     cep_digitado = request.GET.get('cep', '').strip()
-    postos_encontrados = None
+    postos_encontrados = PostoSaude.objects.none()
     bairro_detectado = None 
 
     if cep_digitado:
         cep_limpo = cep_digitado.replace("-", "").replace(" ", "").replace(".", "")
         
-        # 1. Tenta buscar no banco pelo número do CEP (com ou sem hífen)
+        # 1. Busca direta no banco pelo CEP
         postos_encontrados = PostoSaude.objects.filter(
             Q(cep=cep_digitado) | Q(cep=cep_limpo)
         )
 
-        # 2. Se não achou pelo número, pede ajuda ao ViaCEP para saber o bairro
+        # 2. Se não achou, consulta o ViaCEP para identificar o bairro e buscar por ele
         if not postos_encontrados.exists():
             url = f"https://viacep.com.br/ws/{cep_limpo}/json/"
             try:
@@ -107,7 +112,6 @@ def consulta_cep_postos(request):
                     dados = response.json()
                     if 'erro' not in dados:
                         bairro_detectado = dados.get('bairro')
-                        # 3. Busca postos que tenham esse bairro cadastrado
                         postos_encontrados = PostoSaude.objects.filter(bairro__icontains=bairro_detectado)
             except:
                 pass 
@@ -120,46 +124,30 @@ def consulta_cep_postos(request):
 
 @login_required
 def exportar_dados_csv(request):
- 
     response = HttpResponse(content_type='text/csv; charset=utf-8')
     response['Content-Disposition'] = 'attachment; filename="relatorio_vacinas_saquarema.csv"'
 
     response.write(u'\ufeff'.encode('utf8')) 
-    
     writer = csv.writer(response, delimiter=';')
 
-    writer.writerow(['Paciente', 'CPF', 'Vacina', 'Data de Aplicação', 'Posto de Saúde'])
+    writer.writerow(['Paciente', 'CPF', 'Vacina', 'Lote', 'Data de Aplicação', 'Posto de Saúde'])
 
-    vacinacoes = Vacina.objects.all().select_related('paciente', 'posto')
+    # Otimização de consulta com select_related
+    vacinacoes = Vacina.objects.all().select_related('paciente', 'item_estoque__posto')
 
     for v in vacinacoes:
         writer.writerow([
             v.paciente.nome,
             v.paciente.cpf,
-            v.item_estoque.nome_vacina if v.item_estoque else "N/A",
+            v.nome_vacina,
+            v.lote,
             v.data_aplicacao.strftime('%d/%m/%Y %H:%M'),
-            v.item_estoque.posto.nome if v.item_estoque and v.item_estoque.posto else "N/A"
+            v.posto.nome if v.posto else "N/A"
         ])
 
     return response
 
-def busca_postos(request):
-    cep_digitado = request.GET.get('cep', '').strip()
-    postos_encontrados = PostoSaude.objects.none()
-    
-    if cep_digitado:
-        # Limpa o CEP para buscar no banco
-        cep_limpo = cep_digitado.replace("-", "").replace(" ", "")
-        
-        # Busca por CEP exato ou pelo bairro (caso você queira expandir a lógica)
-        postos_encontrados = PostoSaude.objects.filter(cep__icontains=cep_limpo)
-        
-        # Plano B: Se não achar pelo CEP, você pode usar a lógica do ViaCEP que fizemos antes
-        if not postos_encontrados.exists():
-            # (Opcional) Chamar API do ViaCEP aqui para filtrar por bairro
-            pass
-
-    return render(request, 'vacinas/postos.html', {
-        'postos': postos_encontrados,
-        'cep_pesquisado': cep_digitado
-    })
+def carregar_vacinas_posto(request):
+    posto_id = request.GET.get('posto_id')
+    vacinas = Estoque.objects.filter(posto_id=posto_id, quantidade_atual__gt=0).values('id', 'nome_vacina', 'lote')
+    return JsonResponse(list(vacinas), safe=False)

@@ -37,7 +37,7 @@
                     <div class="mt-2">
                         <h6 class="fw-bold small text-muted text-uppercase mb-2">Vacinas Disponíveis:</h6>
                         <div class="d-flex flex-wrap gap-2">
-                            {% for item in posto.estoque_set.all %}
+                            {% for item in posto.vacinas_estoque.all %}
                                 {% if item.quantidade_atual > 0 %}
                                     <span class="badge rounded-pill bg-light text-primary border border-primary-subtle px-3 py-2">
                                         <i class="fas fa-syringe me-1"></i> {{ item.nome_vacina }}

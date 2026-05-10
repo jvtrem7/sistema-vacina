@@ -14,39 +14,36 @@
 <div class="content-card border-0 shadow-sm">
     <div class="table-responsive">
         <table class="table table-mobile-cards">
-            <thead>
-                <tr>
-                    <td>VACINA / IMUNIZANTE</td>
-                    <td>LOTE</td>
-                    <td>QTD. DISPONÍVEL</td>
-                    <td>VALIDADE</td>
-                    <td class="text-center">STATUS</td>
-                </tr>
-            </thead>
-            <tbody>
-                {% for item in itens %}
-                <tr>
-                    <td class="fw-bold text-primary">{{ item.nome_vacina }}</td>
-                    <td><code class="text-dark">{{ item.lote }}</code></td>
-                    <td>
-                        <span class="fw-bold">{{ item.quantidade_atual }}</span> 
-                        <small class="text-muted">doses</small>
-                    </td>
-                    <td>{{ item.data_validade|date:"d/m/Y" }}</td>
-                    <td class="text-center">
-                        {% if item.quantidade_atual > 10 %}
-                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Estoque Ok</span>
-                        {% else %}
-                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Estoque Baixo</span>
-                        {% endif %}
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center py-5 text-muted">Nenhum lote cadastrado no estoque.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+           <thead>
+        <tr>
+            <td>VACINA / IMUNIZANTE</td>
+            <td>LOTE</td>
+            <td>QTD. DISPONÍVEL</td>
+            <td>UNIDADE / POSTO</td> <td>VALIDADE</td>
+            <td>STATUS</td>
+        </tr>
+    </thead>
+    <tbody>
+        {% for item in itens %}
+        <tr>
+            <td class="fw-bold text-primary">{{ item.nome_vacina }}</td>
+            <td>{{ item.lote }}</td>
+            <td>{{ item.quantidade_atual }} <span class="text-muted small">doses</span></td>
+            <td>
+                {% if item.posto %}
+                    <span class="badge bg-light text-dark border">
+                        <i class="fas fa-hospital-user me-1"></i> {{ item.posto.nome }}
+                    </span>
+                {% else %}
+                    <span class="text-danger small fst-italic">Não vinculado</span>
+                {% endif %}
+            </td>
+            <td>{{ item.data_validade|date:"d/m/Y" }}</td>
+            <td><span class="badge bg-success-subtle text-success border border-success-secondary">Estoque Ok</span></td>
+        </tr>
+        {% endfor %}
+    </tbody>
+</table>
         </table>
     </div>
 </div>

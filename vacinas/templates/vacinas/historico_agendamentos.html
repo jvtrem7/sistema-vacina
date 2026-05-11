@@ -23,63 +23,26 @@
                 </tr>
             </thead>
             <tbody class="table-mobile-cards"> 
-                {% for agend in agendamentos %}
-                <tr>
-                    <td class="fw-bold" data-label="DATA/HORA">{{ agend.data_hora|date:"d/m/Y H:i" }}</td>
-                    <td data-label="PACIENTE">
-                        {{ agend.paciente.nome }} <br> 
-                        <small class="text-muted">{{ agend.paciente.cpf }}</small>
-                    </td>
-                    <td data-label="VACINA">
-                        <span class="badge bg-info-subtle text-info px-3 py-2 rounded-pill">
-                            {{ agend.item_estoque.nome_vacina }}
-                        </span>
-                    </td>
-                    <td data-label="STATUS">
-                        {% if agend.status == 'concluido' %}
-                            <span class="badge bg-success-subtle text-success rounded-pill px-3">Concluído</span>
-                        {% else %}
-                            <span class="badge bg-danger-subtle text-danger rounded-pill px-3">Cancelado</span>
-                        {% endif %}
-                    </td>
-                    <td class="text-center" data-label="AÇÕES">
-                        {% if agend.status != 'cancelado' %}
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded-circle shadow-sm" 
-                                style="width: 32px; height: 32px; display: inline-flex; align-items: center; justify-content: center;"
-                                data-bs-toggle="modal" data-bs-target="#modalCancelamento{{ agend.id }}">
-                            <i class="fas fa-times"></i>
-                        </button>
-                        {% endif %}
-
-                        <div class="modal fade" id="modalCancelamento{{ agend.id }}" tabindex="-1" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content border-0 shadow" style="border-radius: 20px;">
-                                    <form action="{% url 'cancelar_agendamento' agend.id %}" method="POST">
-                                        {% csrf_token %}
-                                        <div class="modal-header border-0 pb-0 text-start">
-                                            <h5 class="modal-title fw-bold">Estornar/Cancelar Aplicação</h5>
-                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                        </div>
-                                        <div class="modal-body text-start">
-                                            <p class="text-muted small">Atenção: Ao cancelar um agendamento concluído, a dose voltará para o estoque físico. Justifique abaixo:</p>
-                                            <textarea name="justificativa" class="form-control border-0 bg-light" rows="3" placeholder="Ex: Erro de digitação, paciente passou mal antes da aplicação..." required style="border-radius: 12px;"></textarea>
-                                        </div>
-                                        <div class="modal-footer border-0 pt-0">
-                                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Voltar</button>
-                                            <button type="submit" class="btn btn-danger rounded-pill px-4">Confirmar Estorno</button>
-                                        </div>
-                                    </form>
-                                </div>
-                            </div>
-                        </div>
-                    </td>
-                </tr>
-                {% empty %}
-                <tr>
-                    <td colspan="5" class="text-center text-muted py-5">Nenhum registro no histórico.</td>
-                </tr>
-                {% endfor %}
-            </tbody>
+    {% for agend in agendamentos %}
+    <tr class="mb-3"> <td data-label="DATA/HORA">
+            <span class="fw-bold">{{ agend.data_hora|date:"d/m/Y H:i" }}</span>
+        </td>
+        <td data-label="PACIENTE">
+            <div class="text-end"> <span class="d-block fw-bold text-primary">{{ agend.paciente.nome }}</span>
+                <small class="text-muted">{{ agend.paciente.cpf }}</small>
+            </div>
+        </td>
+        <td data-label="VACINA">
+            <span class="badge bg-info-subtle text-info">{{ agend.item_estoque.nome_vacina }}</span>
+        </td>
+        <td data-label="STATUS">
+            <span class="badge {% if agend.status == 'cancelado' %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %}">
+                {{ agend.get_status_display }}
+            </span>
+        </td>
+    </tr>
+    {% endfor %}
+</tbody>
         </table>
     </div>
 </div>

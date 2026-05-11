@@ -2,7 +2,7 @@ import csv
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Vacina, Paciente, Estoque, PostoSaude
+from .models import Vacina, Paciente, Estoque, PostoSaude, Agendamento
 from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
 from django.db.models import Q
@@ -10,7 +10,8 @@ from django.http import JsonResponse
 from django.db import transaction
 from django.contrib import messages  
 from .models import Agendamento     
-from .forms import VacinaForm       
+from .forms import VacinaForm   
+from django.contrib import messages    
 
 @login_required
 def home(request):
@@ -159,28 +160,44 @@ def carregar_vacinas_posto(request):
 
 
 def agendar_vacina(request):
-
+    # Definimos a variável no topo para ela sempre existir
+    postos = PostoSaude.objects.all()
+    
     if request.method == 'POST':
         cpf = request.POST.get('cpf')
         item_id = request.POST.get('item_estoque')
         data_hora = request.POST.get('data_hora')
         
         paciente = Paciente.objects.filter(cpf=cpf).first()
+        
         if not paciente:
-            # Aqui você pode tratar se o paciente não existir
-            return render(request, 'vacinas/agendar_vacina.html', {'erro': 'CPF não encontrado. Faça seu cadastro primeiro.'})
+            messages.error(request, 'CPF não encontrado. Faça seu cadastro primeiro.')
+            return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
 
-        with transaction.atomic():
-            estoque = Estoque.objects.select_for_update().get(id=item_id)
-            if (estoque.quantidade_atual - estoque.quantidade_reservada) > 0:
-                Agendamento.objects.create(
-                    paciente=paciente,
-                    item_estoque=estoque,
-                    data_hora=data_hora
-                )
-                estoque.quantidade_reservada += 1
-                estoque.save()
-                return redirect('sucesso_agendamento')
+        try:
+            with transaction.atomic():
+                estoque = Estoque.objects.select_for_update().get(id=item_id)
+                
+                if (estoque.quantidade_atual - estoque.quantidade_reservada) > 0:
+                    Agendamento.objects.create(
+                        paciente=paciente,
+                        item_estoque=estoque,
+                        data_hora=data_hora,
+                        status='pendente'
+                    )
+                    estoque.quantidade_reservada += 1
+                    estoque.save()
+                    
+                    messages.success(request, "Agendamento realizado com sucesso!")
+                    # Redirecionamos para a tela de escolha para garantir o funcionamento
+                    return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
+                else:
+                    messages.error(request, "Não há doses disponíveis.")
+        except Exception as e:
+            messages.error(request, f"Erro no sistema: {e}")
+
+    # Este retorno garante que o GET (carregamento inicial) funcione sem erro de 'postos'
+    return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
             
     postos = PostoSaude.objects.all()
     return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})

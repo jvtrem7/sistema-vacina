@@ -160,19 +160,15 @@
       <div class="mobile-app-nav d-md-none">
     {% if user.is_authenticated %}
         <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
-            <i class="fa-solid fa-chart-pie"></i>
+            <i class="fa-solid fa-house-chimney"></i>
         </a>
-        <a href="{% url 'listar_estoque' %}" class="{% if 'estoque' in request.path %}active{% endif %}">
-            <i class="fa-solid fa-box-archive"></i>
-        </a>
-        <a href="{% url 'listar_agendamentos' %}" class="{% if 'agendamento' in request.path %}active{% endif %}">
+        <a href="{% url 'listar_agendamentos' %}" class="{% if 'agendamentos' in request.path %}active{% endif %}">
             <i class="fa-solid fa-calendar-check"></i>
         </a>
-    {% else %}
-        <a href="{% url 'index_escolha' %}" class="{% if request.resolver_match.url_name == 'index_escolha' %}active{% endif %}">
-            <i class="fa-solid fa-house"></i>
+        <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}">
+            <i class="fa-solid fa-user-group"></i>
         </a>
-        
+    {% else %}
         <a href="{% url 'caderneta_paciente' %}" class="{% if 'caderneta' in request.path %}active{% endif %}">
             <i class="fa-solid fa-address-card"></i>
         </a>
@@ -183,6 +179,10 @@
 
         <a href="{% url 'meus_agendamentos' %}" class="{% if 'meus-agendamentos' in request.path %}active{% endif %}">
             <i class="fa-solid fa-clock-rotate-left"></i>
+        </a>
+
+        <a href="javascript:history.back()">
+            <i class="fa-solid fa-arrow-left"></i>
         </a>
     {% endif %}
 </div>

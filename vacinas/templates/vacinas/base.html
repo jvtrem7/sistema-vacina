@@ -149,7 +149,9 @@
         <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-house-chimney"></i></a>
         <a href="{% url 'listar_pacientes' %}" class="{% if request.resolver_match.url_name == 'listar_pacientes' %}active{% endif %}"><i class="fa-solid fa-user-group"></i></a>
         <a href="{% url 'registrar_dose' %}" class="{% if request.resolver_match.url_name == 'registrar_dose' %}active{% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
-    
+        <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-map-location-dot"></i>
+        </a>
         
         <!-- Botão Sair no Mobile -->
         <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-danger">
@@ -162,7 +164,7 @@
         <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <i class="fa-solid fa-house-chimney"></i>
         </a>
-        
+
         <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}">
         <i class="fa-solid fa-map-location-dot"></i>
     </a>
@@ -185,9 +187,6 @@
             <i class="fa-solid fa-clock-rotate-left"></i>
         </a>
 
-        <a href="javascript:history.back()">
-            <i class="fa-solid fa-arrow-left"></i>
-        </a>
     {% endif %}
 </div>
         

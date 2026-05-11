@@ -15,29 +15,41 @@
         <table class="table table-hover align-middle">
             <thead class="table-light"> 
                 <tr>
-                    <td>DATA/HORA</td>
-                    <td>PACIENTE (CPF)</td>
-                    <td>VACINA</td>
-                    <td>POSTO</td>
-                    <td class="text-center">AÇÕES</td>
+                    <th>DATA/HORA</th>
+                    <th>PACIENTE (CPF)</th>
+                    <th>VACINA</th>
+                    <th>POSTO</th>
+                    <th class="text-center">AÇÕES</th>
                 </tr>
             </thead>
             <tbody class="table-mobile-cards"> 
                 {% for agend in agendamentos %}
                 <tr>
-                    <td class="fw-bold" data-label="DATA/HORA">{{ agend.data_hora|date:"d/m/Y H:i" }}</td>
-                    <td data-label="PACIENTE">{{ agend.paciente.nome }} <br> <small class="text-muted">{{ agend.paciente.cpf }}</small></td>
-                    <td data-label="VACINA"><span class="badge bg-info-subtle text-info">{{ agend.item_estoque.nome_vacina }}</span></td>
-                    <td data-label="POSTO">{{ agend.item_estoque.posto.nome }}</td>
+                    <td data-label="DATA/HORA">
+                        <span class="fw-bold">{{ agend.data_hora|date:"d/m/Y H:i" }}</span>
+                    </td>
+                    <td data-label="PACIENTE">
+                        <div>
+                            {{ agend.paciente.nome }} <br> 
+                            <small class="text-muted">{{ agend.paciente.cpf }}</small>
+                        </div>
+                    </td>
+                    <td data-label="VACINA">
+                        <span class="badge bg-info-subtle text-info">{{ agend.item_estoque.nome_vacina }}</span>
+                    </td>
+                    <td data-label="POSTO">
+                        <span>{{ agend.item_estoque.posto.nome }}</span>
+                    </td>
                     <td class="text-center" data-label="AÇÕES">
-                        
-                        <a href="{% url 'confirmar_agendamento' agend.id %}" class="btn btn-sm btn-success rounded-pill shadow-sm me-1">
-                            <i class="fas fa-check"></i>
-                        </a>
+                        <div class="d-flex justify-content-center justify-content-md-center">
+                            <a href="{% url 'confirmar_agendamento' agend.id %}" class="btn btn-sm btn-success rounded-pill shadow-sm me-1">
+                                <i class="fas fa-check"></i>
+                            </a>
 
-                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCancelamento{{ agend.id }}">
-                            <i class="fas fa-times"></i>
-                        </button>
+                            <button type="button" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCancelamento{{ agend.id }}">
+                                <i class="fas fa-times"></i>
+                            </button>
+                        </div>
 
                         <div class="modal fade" id="modalCancelamento{{ agend.id }}" tabindex="-1" aria-hidden="true">
                             <div class="modal-dialog modal-dialog-centered">
@@ -50,11 +62,11 @@
                                         </div>
                                         <div class="modal-body text-start">
                                             <p class="text-muted small">Informe o motivo do cancelamento para o cidadão:</p>
-                                            <textarea name="justificativa" class="form-control border-0 bg-light" rows="3" placeholder="Ex: Erro no lançamento, Paciente não compareceu..." required style="border-radius: 12px;"></textarea>
+                                            <textarea name="justificativa" class="form-control border-0 bg-light" rows="3" placeholder="Ex: Erro no lançamento..." required style="border-radius: 12px;"></textarea>
                                         </div>
                                         <div class="modal-footer border-0">
                                             <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Voltar</button>
-                                            <button type="submit" class="btn btn-danger rounded-pill px-4">Confirmar Cancelamento</button>
+                                            <button type="submit" class="btn btn-danger rounded-pill px-4">Confirmar</button>
                                         </div>
                                     </form>
                                 </div>

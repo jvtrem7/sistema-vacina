@@ -435,20 +435,28 @@ def meus_agendamentos(request):
 @login_required
 def confirmar_agendamento(request, agendamento_id):
     agendamento = get_object_or_404(Agendamento, id=agendamento_id)
-    
+
+    if agendamento.status != 'pendente':
+        messages.warning(request, "Este agendamento já foi processado.")
+        return redirect('listar_agendamentos')
+
     with transaction.atomic():
-        estoque = agendamento.item_estoque
-        if estoque.quantidade_atual > 0:
-            estoque.quantidade_atual -= 1
+        estoque = Estoque.objects.select_for_update().get(pk=agendamento.item_estoque_id)
+        if estoque.quantidade_atual > 0 and estoque.quantidade_reservada > 0:
             estoque.quantidade_reservada -= 1
-            estoque.save()
-            
+            estoque.save(update_fields=['quantidade_reservada'])
+
+            Vacina.objects.create(
+                paciente=agendamento.paciente,
+                item_estoque=estoque,
+            )
+
             agendamento.status = 'concluido'
-            agendamento.save()
+            agendamento.save(update_fields=['status'])
             messages.success(request, f"Dose confirmada para {agendamento.paciente.nome}!")
         else:
-            messages.error(request, "Estoque insuficiente!")
-            
+            messages.error(request, "Estoque insuficiente ou reserva inconsistente.")
+
     return redirect('listar_agendamentos')
 
 @login_required

@@ -90,7 +90,6 @@ class Agendamento(models.Model):
     data_hora = models.DateTimeField()
     status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='pendente')
     criado_em = models.DateTimeField(auto_now_add=True)
-    status = models.CharField(max_length=20, default='pendente')
     justificativa_cancelamento = models.TextField(blank=True, null=True)
 
     def __str__(self):

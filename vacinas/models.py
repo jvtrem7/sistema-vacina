@@ -7,7 +7,9 @@ from django.core.exceptions import ValidationError
 class Paciente(models.Model):
     nome = models.CharField(max_length=200)
     cpf = models.CharField(max_length=14, unique=True)
+    cartao_sus = models.CharField(max_length=15, unique=True, verbose_name="Cartão SUS")
     data_nascimento = models.DateField()
+    telefone = models.CharField(max_length=15, blank=True, null=True) # Trocado de WhatsApp para Telefone
 
     def __str__(self):
         return self.nome

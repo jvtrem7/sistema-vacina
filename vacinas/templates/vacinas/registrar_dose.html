@@ -1,64 +1,120 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<<div class="container mt-4">
-    <div class="card shadow p-4">
-        <h4 class="text-primary fw-bold mb-4">Registrar Aplicação de Vacina</h4>
-        
-        <form method="POST">
-            {% csrf_token %}
+<div class="container py-4">
+    <div class="row justify-content-center">
+        <div class="col-12 col-lg-8 col-xl-7">
             
-            <div class="row">
-                <div class="col-12 mb-3">
-                    <label class="fw-bold small text-muted">Paciente</label>
-                    {{ form.paciente }}
-                </div>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    <div class="mb-4 text-center">
+                        <h4 class="text-primary fw-bold mb-1">
+                            <i class="fas fa-syringe me-2"></i>Registrar Aplicação
+                        </h4>
+                        <p class="text-muted small">Selecione a unidade para listar as vacinas disponíveis.</p>
+                    </div>
 
-                <div class="col-12 mb-3">
-                    <label class="fw-bold small text-muted">Unidade de Saúde (Posto)</label>
-                    {{ form.posto_selecionado }}
-                </div>
+                    <form method="POST" id="form-registrar">
+                        {% csrf_token %}
+                        
+                        <div class="row">
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Paciente</label>
+                                {{ form.paciente }}
+                            </div>
 
-                <div class="col-12 mb-4">
-                    <label class="fw-bold small text-muted">Vacina e Lote Disponível</label>
-                    {{ form.item_estoque }}
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Unidade de Saúde (Posto)</label>
+                                <div class="select-posto-wrapper">
+                                    {{ form.posto_selecionado }}
+                                </div>
+                            </div>
+
+                            <div class="col-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Vacina e Lote Disponível</label>
+                                <div class="select-vacina-wrapper">
+                                    {{ form.item_estoque }}
+                                </div>
+                            </div>
+
+                            <div class="col-md-12 mb-3">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Data e Hora da Aplicação</label>
+                                <input type="datetime-local" name="data_aplicacao" id="id_data_aplicacao" class="form-control" required>
+                            </div>
+                            
+                            <div class="col-12 mb-4">
+                                <label class="form-label fw-bold small text-muted text-uppercase">Observações / Notas</label>
+                                <textarea name="observacao" class="form-control" rows="2" placeholder="Ex: Dose de reforço..."></textarea>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm">
+                            <i class="fas fa-check-circle me-2"></i>FINALIZAR REGISTRO
+                        </button>
+                    </form>
                 </div>
             </div>
-
-            <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">
-                <i class="fas fa-check-circle me-2"></i>Finalizar Registro
-            </button>
-        </form>
+        </div>
     </div>
 </div>
-    
-    <div class="alert alert-info small">
-        <i class="fas fa-info-circle me-2"></i> 
-        Ao selecionar a vacina do estoque, o sistema preencherá automaticamente o lote e o posto de saúde, além de subtrair uma dose do estoque.
-    </div>
 
-    <button type="submit" class="btn btn-primary px-4">
-        <i class="fa-solid fa-check-circle me-2"></i> Finalizar Registro
-    </button>
-</form>
-</div>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 <script>
-    $("#id_posto").change(function () {
-        const url = "{% url 'ajax_carregar_vacinas' %}";
-        const postoId = $(this).val();
+    $(document).ready(function() {
+        // 1. Preencher data atual
+        const dataInput = document.getElementById('id_data_aplicacao');
+        if (dataInput) {
+            const agora = new Date();
+            agora.setMinutes(agora.getMinutes() - agora.getTimezoneOffset());
+            dataInput.value = agora.toISOString().slice(0, 16);
+        }
 
-        $.ajax({
-            url: url,
-            data: { 'posto_id': postoId },
-            success: function (data) {
-                let html_data = '<option value="">Selecione a vacina disponível...</option>';
-                data.forEach(function (item) {
-                    html_data += `<option value="${item.id}">${item.nome_vacina} - Lote: ${item.lote}</option>`;
+        // 2. Lógica de busca de vacinas (O SEGREDO ESTÁ AQUI)
+        // Em vez de usar ID fixo, buscamos o select que está dentro da nossa div de Unidade
+        const selectPosto = $("select[name='posto_selecionado']");
+        const selectVacina = $("select[name='item_estoque']");
+
+        selectPosto.change(function () {
+            const url = "{% url 'ajax_carregar_vacinas' %}";
+            const postoId = $(this).val();
+
+            if (postoId) {
+                console.log("Buscando vacinas para o posto ID:", postoId); // Veja no console (F12)
+                
+                $.ajax({
+                    url: url,
+                    data: { 'posto_id': postoId },
+                    success: function (data) {
+                        console.log("Dados recebidos:", data); // Veja se os dados chegam
+                        let options = '<option value="">Selecione a vacina disponível...</option>';
+                        data.forEach(function (item) {
+                            options += `<option value="${item.id}">${item.nome_vacina} - Lote: ${item.lote}</option>`;
+                        });
+                        selectVacina.html(options);
+                    },
+                    error: function(xhr, status, error) {
+                        console.error("Erro no AJAX:", error);
+                        alert("Não foi possível carregar as vacinas deste posto.");
+                    }
                 });
-                $("#id_item_estoque").html(html_data);
+            } else {
+                selectVacina.html('<option value="">Selecione o posto primeiro...</option>');
             }
         });
     });
 </script>
+
+<style>
+    select, .form-control {
+        display: block;
+        width: 100%;
+        padding: 0.375rem 0.75rem;
+        font-size: 1rem;
+        line-height: 1.5;
+        color: #212529;
+        background-color: #fff;
+        border: 1px solid #ced4da;
+        border-radius: 10px !important;
+    }
+</style>
 {% endblock %}

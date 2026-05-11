@@ -69,11 +69,17 @@ def portal_boas_vindas(request):
 def caderneta_paciente(request):
     cpf = request.GET.get('cpf')
     paciente = None
+    doses = [] # Criamos a lista de doses vazia por padrão
+    
     if cpf:
         paciente = Paciente.objects.filter(cpf=cpf).first()
+        if paciente:
+    
+            doses = Vacina.objects.filter(paciente=paciente).select_related('item_estoque__posto').order_by('-data_aplicacao')
     
     return render(request, 'vacinas/caderneta.html', {
         'paciente': paciente,
+        'doses': doses, 
         'busca_ativa': bool(cpf)
     })
 

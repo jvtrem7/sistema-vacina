@@ -4,11 +4,13 @@ from .models import Paciente, Vacina, Estoque, PostoSaude
 class PacienteForm(forms.ModelForm):
     class Meta:
         model = Paciente
-        fields = ['nome', 'cpf', 'data_nascimento']
+        fields = ['nome', 'cpf', 'data_nascimento','cartao_sus', 'telefone']
         widgets = {
             'data_nascimento': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'nome': forms.TextInput(attrs={'class': 'form-control'}),
             'cpf': forms.TextInput(attrs={'class': 'form-control'}),
+            'cartao_sus': forms.TextInput(attrs={'placeholder': '000 0000 0000 0000'}),
+            'telefone': forms.TextInput(attrs={'placeholder': '(00) 00000-0000'}),
         }
 
 class VacinaForm(forms.ModelForm):

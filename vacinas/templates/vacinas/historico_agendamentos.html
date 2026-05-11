@@ -19,7 +19,6 @@
                     <td class="border-0">PACIENTE</td>
                     <td class="border-0">VACINA</td>
                     <td class="border-0">STATUS</td>
-                    <td class="border-0 text-center">AÇÕES</td>
                 </tr>
             </thead>
             <tbody class="table-mobile-cards"> 
@@ -35,11 +34,21 @@
         <td data-label="VACINA">
             <span class="badge bg-info-subtle text-info">{{ agend.item_estoque.nome_vacina }}</span>
         </td>
-        <td data-label="STATUS">
-            <span class="badge {% if agend.status == 'cancelado' %}bg-danger-subtle text-danger{% else %}bg-success-subtle text-success{% endif %}">
-                {{ agend.get_status_display }}
-            </span>
-        </td>
+       <td data-label="STATUS">
+    {% if agend.status == 'cancelado' %}
+        <span class="badge bg-danger-subtle text-danger border border-danger-secondary px-3 rounded-pill">
+            <i class="fa-solid fa-xmark me-1"></i> Cancelado
+        </span>
+    {% elif agend.status == 'confirmado' %}
+        <span class="badge bg-success-subtle text-success border border-success-secondary px-3 rounded-pill">
+            <i class="fa-solid fa-check me-1"></i> Confirmado
+        </span>
+    {% else %}
+        <span class="badge bg-warning-subtle text-warning border border-warning-secondary px-3 rounded-pill">
+            <i class="fa-solid fa-clock me-1"></i> Pendente
+        </span>
+    {% endif %}
+</td>
     </tr>
     {% endfor %}
 </tbody>

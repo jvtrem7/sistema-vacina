@@ -1,76 +1,101 @@
-{% extends 'vacinas/base_externo.html' %}
-{% block content %}
-<div class="container mt-5">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card border-0 shadow-lg p-4" style="border-radius: 20px;">
-                <h3 class="fw-bold text-dark mb-4 text-center">Meus Agendamentos</h3>
-                
-                <form method="GET" class="mb-4">
-                    <div class="input-group">
-                        <input type="text" name="cpf" class="form-control rounded-pill-start" placeholder="Digite seu CPF para consultar..." value="{{ cpf_consultado|default:'' }}">
-                        <button class="btn btn-primary rounded-pill-end px-4" type="submit">Consultar</button>
-                    </div>
-                </form>
-                
-                <div class="text-center mt-4 pb-2">
-    <a href="{% url 'caderneta_paciente' %}" class="text-decoration-none small text-muted hover-primary transition-all">
-        <i class="fas fa-arrow-left me-2"></i>Voltar ao Portal
-    </a>
-</div>
+{% extends 'vacinas/base.html' %}
 
-                {% if agendamentos %}
-                    <div class="list-group">
-                        {% for agend in agendamentos %}
-                        <div class="list-group-item border-0 shadow-sm mb-3 p-3" style="border-radius: 15px; background: #f8fafc;">
-                            <div class="d-flex justify-content-between align-items-start">
-                                <div>
-                                    <h6 class="fw-bold mb-1 text-primary">{{ agend.item_estoque.nome_vacina }}</h6>
-                                    <p class="text-muted small mb-0">
-                                        <i class="fas fa-hospital me-1"></i> {{ agend.item_estoque.posto.nome }}<br>
-                                        <i class="fas fa-clock me-1"></i> {{ agend.data_hora|date:"d/m/Y - H:i" }}
-                                    </p>
-                                </div>
-                                <div class="text-end">
-                                    {% if agend.status == 'pendente' %}
-                                        <span class="badge bg-warning text-dark rounded-pill shadow-sm">Pendente</span>
-                                    {% elif agend.status == 'concluido' %}
-                                        <span class="badge bg-success rounded-pill shadow-sm">Concluído</span>
-                                    {% else %}
-                                        <span class="badge bg-danger rounded-pill shadow-sm">Cancelado</span>
-                                    {% endif %}
-                                </div>
+{% block content %}
+<div class="container-fluid py-4">
+    <div class="mb-4 ps-2">
+        <h2 class="fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-calendar-check me-3 text-primary"></i> Meus Agendamentos
+        </h2>
+        <p class="text-muted">Consulte o status e a data das suas próximas vacinas.</p>
+    </div>
+
+    <div class="row">
+        <div class="col-12 col-lg-11 col-xl-10"> 
+            
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <form action="" method="GET" class="mb-5">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden border" style="height: 38px; border-color: #e2e8f0 !important;">
+                            <input type="text" name="cpf" class="form-control border-0 ps-4" 
+                                   placeholder="Digite seu CPF para consultar agendamentos..." 
+                                   value="{{ request.GET.cpf|default:'' }}"
+                                   style="height: 38px; font-size: 0.95rem; background: #fff; box-shadow: none;">
+                            
+                            <button class="btn btn-primary px-5 fw-bold d-flex align-items-center justify-content-center" 
+                                    type="submit" style="height: 38px;">
+                                <i class="fas fa-search me-2"></i> CONSULTAR
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="opacity-10 mb-5">
+
+                    <div class="results-container">
+                        {% if agendamentos %}
+                            <h5 class="fw-bold mb-4 text-dark"><i class="fas fa-list me-2 text-primary"></i> Agendamentos Localizados</h5>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Vacina</th>
+                                            <th>Local da Vacinação</th>
+                                            <th>Data e Hora</th>
+                                            <th class="text-center">Status</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for agendamento in agendamentos %}
+                                        <tr>
+                                            <td>
+                                                <span class="fw-bold text-dark">{{ agendamento.item_estoque.nome_vacina }}</span>
+                                                <br><small class="text-muted">Lote: {{ agendamento.item_estoque.lote }}</small>
+                                            </td>
+                                            <td>
+                                                <i class="fas fa-map-marker-alt me-1 text-danger"></i> 
+                                                {{ agendamento.item_estoque.posto.nome }}
+                                            </td>
+                                            <td class="small">
+                                                {{ agendamento.data_hora|date:"d/m/Y - H:i" }}
+                                            </td>
+                                            <td class="text-center">
+                                                {% if agendamento.status == 'pendente' %}
+                                                    <span class="badge bg-warning-subtle text-warning rounded-pill px-3">Pendente</span>
+                                                {% elif agendamento.status == 'concluido' %}
+                                                    <span class="badge bg-success-subtle text-success rounded-pill px-3">Concluído</span>
+                                                {% else %}
+                                                    <span class="badge bg-secondary-subtle text-secondary rounded-pill px-3">{{ agendamento.status }}</span>
+                                                {% endif %}
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
                             </div>
 
-                            {% if agend.status == 'cancelado' %}
-                                <div class="alert alert-danger mt-3 mb-0 py-2 small border-0" style="border-radius: 10px; background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
-                                    <i class="fas fa-info-circle me-1"></i>
-                                    <strong>Motivo do cancelamento:</strong> {{ agend.justificativa_cancelamento|default:"Não informado pelo posto." }}
+                        {% elif request.GET.cpf %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-calendar-times fa-3x text-light mb-3"></i>
+                                <h5 class="text-muted">Nenhum agendamento encontrado para este CPF.</h5>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                                    <i class="fas fa-calendar-alt fa-4x text-primary opacity-50"></i>
                                 </div>
-                            {% endif %}
-                        </div>
-                        {% endfor %}
+                                <h4 class="text-secondary fw-bold">Aguardando consulta...</h4>
+                                <p class="text-muted mx-auto" style="max-width: 450px;">
+                                    Insira seu CPF acima para verificar a data, hora e o local onde sua vacina foi agendada.
+                                </p>
+                            </div>
+                        {% endif %}
                     </div>
-                {% elif cpf_consultado %}
-                    <div class="text-center py-4">
-                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
-                        <p class="text-muted">Nenhum agendamento encontrado para o CPF: <strong>{{ cpf_consultado }}</strong></p>
-                    </div>
-                {% endif %}
-                
-                <div class="text-center mt-3">
-                    <div class="text-center mt-3">
-    </a>
-</div>
+
                 </div>
             </div>
+
         </div>
     </div>
 </div>
-
-<style>
-    .hover-primary:hover { color: #0d6efd !important; }
-    .list-group-item { transition: transform 0.2s; }
-    .list-group-item:hover { transform: scale(1.01); }
-</style>
 {% endblock %}

@@ -8,7 +8,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('', views.index_escolha, name='index_escolha'),
     path('dashboard/', views.home, name='home'), 
-    path('novo-paciente/', views.cadastrar_paciente, name='cadastrar_paciente'),
+    path('pacientes/novo/', views.cadastrar_paciente, name='cadastrar_paciente'),
     path('registrar-dose/', views.registrar_dose, name='registrar_dose'),
     path('pacientes/', views.listar_pacientes, name='listar_pacientes'),
     path('editar-paciente/<int:pk>/', views.editar_paciente, name='editar_paciente'),

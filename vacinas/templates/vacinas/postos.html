@@ -1,71 +1,101 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<div class="container-fluid p-0">
-    <header class="mb-5 text-center">
-        <h2 class="fw-bold mb-0 text-primary">Localizador de Vacinas - EasyVacc</h2>
-        <p class="text-muted">Informe seu CEP para listarmos as unidades de saúde do seu bairro.</p>
-        
-        <div class="row justify-content-center mt-4">
-            <div class="col-md-8 col-lg-6">
-                <form method="GET" action="{% url 'busca_postos' %}" class="input-group mb-3 shadow-sm">
-                    <input type="text" name="cep" class="form-control form-control-lg border-primary" 
-                           placeholder="Ex: 28990-000" value="{{ cep_pesquisado|default:'' }}" maxlength="9">
-                    
-                    <button class="btn btn-primary px-4" type="submit">
-                        <i class="fas fa-search me-2"></i> Buscar Postos
-                    </button>
-                </form>
-            </div>
-        </div>
-    </header>
+<div class="container-fluid py-4">
+    <div class="mb-4 ps-2">
+        <h2 class="fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-map-marked-alt me-3 text-primary"></i> Unidades de Saúde
+        </h2>
+        <p class="text-muted">Localize o posto de vacinação mais próximo de você em Saquarema.</p>
+    </div>
 
-    <div class="row px-2">
-        {% if postos %}
-            <div class="col-12 mb-3">
-                <p class="text-success fw-bold">
-                <i class="fas fa-check-circle me-2"></i>Resultados para o bairro: {{ bairro_localizado|default:"Sua Região" }}
-                </p>
-            </div>
+    <div class="row">
+        <div class="col-12 col-lg-11 col-xl-10"> 
             
-            {% for posto in postos %}
-            <div class="col-md-6 mb-4">
-                <div class="card h-100 border-0 border-start border-primary border-5 shadow-sm bg-white p-4" style="border-radius: 10px;">
-                    <h4 class="fw-bold text-primary mb-1">{{ posto.nome }}</h4>
-                    <p class="text-muted mb-3 small"><i class="fas fa-map-marker-alt me-2 text-danger"></i>{{ posto.endereco }}</p>
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
                     
-                    <div class="mt-2">
-                        <h6 class="fw-bold small text-muted text-uppercase mb-2">Vacinas Disponíveis:</h6>
-                        <div class="d-flex flex-wrap gap-2">
-                            {% for item in posto.vacinas_estoque.all %}
-                                {% if item.quantidade_atual > 0 %}
-                                    <span class="badge rounded-pill bg-light text-primary border border-primary-subtle px-3 py-2">
-                                        <i class="fas fa-syringe me-1"></i> {{ item.nome_vacina }}
-                                    </span>
-                                {% endif %}
-                            {% empty %}
-                                <small class="text-muted fst-italic">Consulte a unidade para informações.</small>
-                            {% endfor %}
+                    <form action="" method="GET" class="mb-5">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden border" style="height: 38px; border-color: #e2e8f0 !important;">
+                            <input type="text" name="cep" class="form-control border-0 ps-4" 
+                                   placeholder="Digite seu CEP ou Bairro para localizar..." 
+                                   value="{{ cep_pesquisado|default:'' }}"
+                                   style="height: 38px; font-size: 0.95rem; background: #fff; box-shadow: none;">
+                            
+                            <button class="btn btn-primary px-5 fw-bold d-flex align-items-center justify-content-center" 
+                                    type="submit" style="height: 38px;">
+                                <i class="fas fa-search-location me-2"></i> BUSCAR POSTO
+                            </button>
                         </div>
-                    </div>
-                </div>
-            </div>
-            {% endfor %}
+                    </form>
 
-        {% elif cep_pesquisado %}
-            <div class="col-12 text-center py-5">
-                <div class="alert alert-warning d-inline-block px-5 shadow-sm border-0">
-                    <i class="fas fa-exclamation-triangle me-2"></i>
-                    Nenhum posto encontrado para o bairro <strong>{{ bairro_localizado|default:"não identificado" }}</strong>.
+                    <hr class="opacity-10 mb-5">
+
+                    <div class="results-container">
+                        {% if postos %}
+                            <div class="mb-4">
+                                <h5 class="fw-bold text-dark">
+                                    <i class="fas fa-clinic-medical me-2 text-primary"></i> 
+                                    Unidades Encontradas {% if bairro_localizado %}em {{ bairro_localizado }}{% endif %}
+                                </h5>
+                            </div>
+
+                            <div class="row g-4">
+                                {% for posto in postos %}
+                                <div class="col-md-6">
+                                    <div class="p-3 border rounded-4 bg-light h-100 shadow-sm-hover transition-all">
+                                        <div class="d-flex align-items-start">
+                                            <div class="bg-primary bg-opacity-10 p-3 rounded-3 me-3">
+                                                <i class="fas fa-hospital text-primary fa-lg"></i>
+                                            </div>
+                                            <div>
+                                                <h6 class="fw-bold mb-1 text-dark">{{ posto.nome }}</h6>
+                                                <p class="text-muted small mb-2">
+                                                    <i class="fas fa-map-pin me-1 text-danger"></i> {{ posto.endereco }}, {{ posto.bairro }}
+                                                </p>
+                                                <span class="badge bg-white text-primary border border-primary-subtle rounded-pill px-3">
+                                                    {{ posto.telefone|default:"Sem telefone" }}
+                                                </span>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                {% endfor %}
+                            </div>
+
+                        {% elif cep_pesquisado %}
+                            <div class="text-center py-5">
+                                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                                    <i class="fas fa-map-marker-slash fa-4x text-muted opacity-50"></i>
+                                </div>
+                                <h5 class="text-muted">Nenhuma unidade de saúde localizada para este termo.</h5>
+                                <p class="small text-muted">Tente digitar o nome do bairro ou outro CEP.</p>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                                    <i class="fas fa-search-location fa-4x text-primary opacity-50"></i>
+                                </div>
+                                <h4 class="text-secondary fw-bold">Onde você está?</h4>
+                                <p class="text-muted mx-auto" style="max-width: 450px;">
+                                    Digite seu CEP ou o nome do seu bairro para encontrarmos os postos de saúde mais próximos com vacinas disponíveis.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+
                 </div>
             </div>
-        {% else %}
-            <div class="col-12 text-center py-5 opacity-50">
-                <i class="fas fa-map-marked-alt fa-4x mb-3 text-primary"></i>
-                <h4 class="fw-bold">Saúde mais perto de você.</h4>
-                <p>Busque pelo seu CEP e veja os postos de Saquarema.</p>
-            </div>
-        {% endif %}
+
+        </div>
     </div>
 </div>
+
+<style>
+    .shadow-sm-hover:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 0.5rem 1rem rgba(0, 0, 0, 0.08) !important;
+        transition: all 0.3s ease;
+    }
+</style>
 {% endblock %}

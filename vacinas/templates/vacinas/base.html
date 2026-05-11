@@ -15,121 +15,125 @@
     :root {
         --sidebar-width: 240px;
         --primary-color: #2563eb;
+        --bg-light: #f8fafc;
+        --border-color: #e2e8f0;
+        --text-slate: #64748b;
     }
 
     html, body {
         overflow-x: hidden;
-        background-color: #f8fafc;
+        background-color: var(--bg-light);
         font-family: 'Inter', sans-serif;
         color: #1e293b;
     }
 
-    /* --- SIDEBAR DESKTOP (MANTIDA PERFEITA) --- */
+    /* --- SIDEBAR DESKTOP --- */
     .sidebar { 
         background: #ffffff; height: 100vh; position: fixed; 
         top: 0; left: 0; width: var(--sidebar-width); z-index: 1000; 
-        border-right: 1px solid #e2e8f0; display: flex; flex-direction: column; overflow-y: auto;
+        border-right: 1px solid var(--border-color); display: flex; flex-direction: column; overflow-y: auto;
     }
-    .sidebar::-webkit-scrollbar {
-    width: 5px;
-}
-.sidebar::-webkit-scrollbar-thumb {
-    background: #e2e8f0;
-    border-radius: 10px;
-}
+    .sidebar::-webkit-scrollbar { width: 5px; }
+    .sidebar::-webkit-scrollbar-thumb { background: var(--border-color); border-radius: 10px; }
+    
     .logo-container { padding: 1.5rem 1rem; text-align: center; }
     .logo-img { width: 100%; max-width: 130px; height: auto; }
+    
     .nav-link {
-        padding: 0.7rem 1.2rem; color: #64748b; display: flex !important;
+        padding: 0.7rem 1.2rem; color: var(--text-slate); display: flex !important;
         align-items: center; text-decoration: none; font-weight: 500; font-size: 0.9rem;
     }
     .nav-link i { width: 28px; text-align: center; margin-right: 10px; }
     .nav-link:hover, .nav-link.active { background: #eff6ff; color: var(--primary-color); border-right: 4px solid var(--primary-color); }
+    
     .main-content { margin-left: var(--sidebar-width); padding: 2rem; width: calc(100% - var(--sidebar-width)); min-height: 100vh; }
 
-    /* --- MOBILE REESTILIZADO (LIMPO & SEM POLUIÇÃO) --- */
-    @media (max-width: 991px) {
-    body { background-color: #f8fafc; } /* Um cinza bem leve para destacar os cards brancos */
-    .sidebar { display: none !important; }
-    .main-content { margin-left: 0; width: 100%; padding: 1rem; padding-bottom: 120px; }
-
-    /* Saudação Apple Style */
-    .mobile-header { display: block !important; margin: 1rem 0 1.5rem 0; }
-    .mobile-header h1 { font-weight: 700; font-size: 1.5rem; letter-spacing: -0.5px; }
-
-    /* Navegação Flutuante de Vidro */
-    .mobile-app-nav {
-        display: flex !important; position: fixed; bottom: 25px; left: 50%;
-        transform: translateX(-50%); width: 92%; max-width: 420px;
-        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
-        -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 8px;
-        justify-content: space-evenly; align-items: center; z-index: 9999;
-        border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+    /* --- PADRONIZAÇÃO DE TABELAS --- */
+    .table-responsive {
+        background: #ffffff;
+        border-radius: 15px;
+        border: 1px solid var(--border-color);
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
+        overflow: hidden;
     }
-    .mobile-app-nav a { color: #86868b; font-size: 1.2rem; padding: 10px; transition: 0.3s; }
-    .mobile-app-nav a.active { color: var(--primary-color); transform: translateY(-2px); }
-
-    /* --- LIMPEZA DA TABELA PARA VIRAR CARDS --- */
-    .table-responsive { border: none !important; overflow: visible !important; }
-    
-    /* Esconde o cabeçalho original da tabela (Gera o erro visual de fundo) */
-    .table-mobile-cards thead, 
-    .table-hover thead, 
-    .table-light thead { 
-        display: none !important; 
-    }
-
-    .table-mobile-cards, 
-    .table-mobile-cards tbody, 
-    .table-mobile-cards tr, 
-    .table-mobile-cards td { 
-        display: block !important; 
-        width: 100% !important; 
-        background-color: transparent !important;
-    }
-
-    /* Estilo do Card */
-    .table-mobile-cards tr { 
-        margin-bottom: 20px !important; 
-        background: #ffffff !important; 
-        border-radius: 20px !important; 
-        padding: 12px !important; 
-        border: 1px solid #e2e8f0 !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important;
-    }
-
-    /* Estilo das Linhas Internas do Card */
-    .table-mobile-cards td { 
-        display: flex !important; 
-        justify-content: space-between !important; 
-        align-items: center !important;
-        padding: 12px 8px !important; 
-        border: none !important;
-        border-bottom: 1px solid #f1f5f9 !important; 
-        min-height: 50px !important;
-    }
-
-    .table-mobile-cards td:last-child { border-bottom: none !important; }
-
-    /* Rótulo (Lado Esquerdo) */
-    .table-mobile-cards td::before {
-        content: attr(data-label); 
-        font-weight: 700 !important; 
-        color: #94a3b8 !important; 
-        font-size: 0.7rem !important; 
+    .table thead th {
+        background-color: #f1f5f9 !important;
+        color: var(--text-slate) !important;
+        font-size: 0.75rem !important;
+        font-weight: 700 !important;
         text-transform: uppercase !important;
-        text-align: left !important;
-        flex: 1 !important;
-        padding-right: 10px;
+        padding: 15px !important;
+        border-bottom: 2px solid var(--border-color) !important;
+    }
+    .table tbody td { padding: 14px 15px !important; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
+
+    /* --- PADRONIZAÇÃO DE FORMULÁRIOS (NOVO CADASTRO, DOSE, LOTE) --- */
+    .card, .content-card {
+        border-radius: 20px !important;
+        border: 1px solid var(--border-color) !important;
+        box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important;
+        padding: 1.5rem;
+        background: #ffffff;
     }
 
-    /* Conteúdo (Lado Direito) */
-    .table-mobile-cards td > * {
-        flex: 2 !important; 
-        text-align: right !important;
-        font-size: 0.95rem;
+    .form-control, .form-select {
+        border-radius: 12px !important;
+        border: 1px solid var(--border-color) !important;
+        padding: 0.75rem 1rem !important;
+        font-size: 0.95rem !important;
+        background-color: #fcfdfe !important;
+        transition: all 0.2s ease;
     }
-}
+
+    .form-control:focus, .form-select:focus {
+        border-color: var(--primary-color) !important;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1) !important;
+        background-color: #ffffff !important;
+    }
+
+    label {
+        font-weight: 600 !important;
+        color: var(--text-slate) !important;
+        margin-bottom: 0.5rem !important;
+        font-size: 0.85rem !important;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+
+    .btn-primary {
+        border-radius: 12px !important;
+        padding: 0.8rem 1.5rem !important;
+        font-weight: 600 !important;
+        transition: all 0.3s ease;
+    }
+
+    /* --- MOBILE REESTILIZADO --- */
+    @media (max-width: 991px) {
+        body { background-color: var(--bg-light); }
+        .sidebar { display: none !important; }
+        .main-content { margin-left: 0; width: 100%; padding: 1rem; padding-bottom: 120px; }
+
+        .mobile-app-nav {
+            display: flex !important; position: fixed; bottom: 25px; left: 50%;
+            transform: translateX(-50%); width: 92%; max-width: 420px;
+            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 8px;
+            justify-content: space-evenly; align-items: center; z-index: 9999;
+            border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+        }
+        .mobile-app-nav a { color: #86868b; font-size: 1.2rem; padding: 10px; transition: 0.3s; }
+        .mobile-app-nav a.active { color: var(--primary-color); transform: translateY(-2px); }
+
+        /* --- TABELA EM CARDS NO MOBILE --- */
+        .table-responsive { border: none !important; background: transparent !important; box-shadow: none !important; }
+        .table-mobile-cards thead { display: none !important; }
+        .table-mobile-cards tbody, .table-mobile-cards tr, .table-mobile-cards td { display: block !important; width: 100% !important; background-color: transparent !important; }
+        .table-mobile-cards tr { margin-bottom: 20px !important; background: #ffffff !important; border-radius: 20px !important; padding: 12px !important; border: 1px solid var(--border-color) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important; }
+        .table-mobile-cards td { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 12px 8px !important; border: none !important; border-bottom: 1px solid #f1f5f9 !important; min-height: 50px !important; }
+        .table-mobile-cards td:last-child { border-bottom: none !important; }
+        .table-mobile-cards td::before { content: attr(data-label); font-weight: 700 !important; color: var(--text-slate) !important; font-size: 0.7rem !important; text-transform: uppercase !important; flex: 1 !important; padding-right: 10px; text-align: left; }
+        .table-mobile-cards td > * { flex: 2 !important; text-align: right !important; font-size: 0.95rem; }
+    }
 </style>
 </head>
 <body>

@@ -1,27 +1,109 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <h3 class="fw-bold mb-4"><i class="fa-solid fa-search me-2 text-primary"></i>Consultar Caderneta</h3>
-    
-    <div class="card border-0 shadow-sm rounded-4 p-4 mb-4">
-        <form method="GET" action="{% url 'caderneta_paciente' %}">
-            <div class="row g-2">
-                <div class="col-9">
-                    <input type="text" name="cpf" class="form-control rounded-pill" placeholder="Digite seu CPF para consultar...">
-                </div>
-                <div class="col-3">
-                    <button type="submit" class="btn btn-primary w-100 rounded-pill">Buscar</button>
-                </div>
-            </div>
-        </form>
+<div class="container-fluid py-4">
+    <div class="mb-4 ps-2">
+        <h2 class="fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-search me-3 text-primary"></i> Consultar Caderneta
+        </h2>
+        <p class="text-muted">Histórico oficial de imunização municipal.</p>
     </div>
 
-    {% if busca_ativa %}
-        {% if paciente %}
-            {% else %}
-            <div class="alert alert-warning rounded-4">Paciente não encontrado.</div>
-        {% endif %}
-    {% endif %}
+    <div class="row">
+        <div class="col-12 col-lg-11 col-xl-10"> 
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <form action="" method="GET" class="mb-5">
+                        <div class="input-group shadow-sm rounded-pill overflow-hidden border" style="height: 38px; border-color: #e2e8f0 !important;">
+                            <input type="text" name="cpf" class="form-control border-0 ps-4" 
+                                   placeholder="Digite o CPF para pesquisar..." 
+                                   value="{{ request.GET.cpf|default:'' }}"
+                                   style="height: 38px; font-size: 0.95rem; background: #fff; box-shadow: none;">
+                            
+                            <button class="btn btn-primary px-5 fw-bold d-flex align-items-center justify-content-center" 
+                                    type="submit" style="height: 38px;">
+                                <i class="fas fa-search me-2"></i> BUSCAR
+                            </button>
+                        </div>
+                    </form>
+
+                    <hr class="opacity-10 mb-5">
+
+                    <div class="results-container">
+                        {% if paciente %}
+                            <div class="d-flex justify-content-between align-items-center mb-4 bg-light p-3 rounded-4 border">
+                                <div>
+                                    <h4 class="fw-bold text-primary mb-1">{{ paciente.nome }}</h4>
+                                    <span class="text-muted small"><i class="fas fa-id-card me-1"></i> CPF: {{ paciente.cpf }}</span>
+                                </div>
+                                <div class="text-end d-none d-md-block">
+                                    <span class="badge bg-primary rounded-pill px-3 py-2">Cidadão Ativo</span>
+                                </div>
+                            </div>
+
+                            <h5 class="fw-bold mb-3"><i class="fas fa-history me-2 text-primary"></i>Doses Aplicadas</h5>
+                            
+                            <div class="table-responsive">
+                                <table class="table table-hover align-middle">
+                                    <thead class="table-light">
+                                        <tr>
+                                            <th>Vacina</th>
+                                            <th>Lote</th>
+                                            <th>Data/Hora da Aplicação</th> <th>Posto de Saúde</th>
+                                            <th>Situação</th> </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for dose in doses %}
+                                        <tr>
+                                            <td><span class="fw-bold text-dark">{{ dose.item_estoque.nome_vacina }}</span></td>
+                                            <td><span class="badge bg-white text-dark border">{{ dose.item_estoque.lote }}</span></td>
+                                            
+                                            <td class="small">
+                                                <i class="far fa-calendar-alt me-1 text-muted"></i>
+                                                {{ dose.data_aplicacao|date:"d/m/Y H:i" }}
+                                            </td>
+
+                                            <td class="small text-muted">{{ dose.item_estoque.posto.nome }}</td>
+
+                                            <td>
+                                                <span class="badge bg-success-subtle text-success rounded-pill px-3">
+                                                    <i class="fas fa-check-circle me-1"></i> Aplicada
+                                                </span>
+                                            </td>
+                                        </tr>
+                                        {% empty %}
+                                        <tr>
+                                            <td colspan="5" class="text-center py-5 text-muted">
+                                                <i class="fas fa-info-circle me-2"></i>Nenhuma dose registada para este CPF.
+                                            </td>
+                                        </tr>
+                                        {% endfor %}
+                                    </tbody>
+                                </table>
+                            </div>
+
+                        {% elif busca_ativa %}
+                            <div class="text-center py-5">
+                                <i class="fas fa-user-slash fa-3x text-light mb-3"></i>
+                                <h5 class="text-muted">Paciente não localizado.</h5>
+                            </div>
+                        {% else %}
+                            <div class="text-center py-5">
+                                <div class="bg-light d-inline-block p-4 rounded-circle mb-4">
+                                    <i class="fas fa-id-card-alt fa-4x text-primary opacity-50"></i>
+                                </div>
+                                <h4 class="text-secondary fw-bold">Aguardando consulta...</h4>
+                                <p class="text-muted mx-auto" style="max-width: 450px;">
+                                    Insira o CPF acima para carregar o histórico completo de vacinas e doses aplicadas.
+                                </p>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}

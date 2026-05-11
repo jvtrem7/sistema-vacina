@@ -1,111 +1,88 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<div class="container mt-4">
-    <div class="row justify-content-center">
-        <div class="col-md-8">
-            <div class="card shadow-sm border-0" style="border-radius: 15px;">
-                <div class="card-body p-4">
+<div class="container-fluid py-4">
+    
+    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
+        {% if messages %}
+            {% for message in messages %}
+                <div class="toast align-items-center text-white {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} border-0 shadow-lg rounded-4" role="alert" aria-live="assertive" aria-atomic="true" data-bs-delay="5000">
+                    <div class="d-flex">
+                        <div class="toast-body p-3">
+                            <div class="d-flex align-items-center">
+                                {% if message.tags == 'success' %}
+                                    <i class="fas fa-check-circle me-2 fa-lg"></i>
+                                {% else %}
+                                    <i class="fas fa-exclamation-circle me-2 fa-lg"></i>
+                                {% endif %}
+                                <strong style="font-size: 0.95rem;">{{ message }}</strong>
+                            </div>
+                        </div>
+                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast" aria-label="Close"></button>
+                    </div>
+                </div>
+            {% endfor %}
+        {% endif %}
+    </div>
 
-                    <h3 class="fw-bold text-primary mb-4">
-                        <i class="fa-solid fa-calendar-check me-2"></i>
-                        Agendar Minha Dose
-                    </h3>
+    <div class="mb-4 ps-2">
+        <h2 class="fw-bold text-dark d-flex align-items-center">
+            <i class="fas fa-calendar-plus me-3 text-primary"></i> Agendar Nova Dose
+        </h2>
+        <p class="text-muted">Escolha a unidade e a vacina para garantir sua imunização.</p>
+    </div>
 
-                    <form method="POST">
+    <div class="row">
+        <div class="col-12 col-lg-11 col-xl-10"> 
+            <div class="card border-0 shadow-sm rounded-4">
+                <div class="card-body p-4 p-md-5">
+                    
+                    <form method="POST" id="form-agendamento">
                         {% csrf_token %}
-
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-muted small">
-                                Seu CPF
-                            </label>
-
-                            <input
-                                type="text"
-                                name="cpf"
-                                class="form-control form-control-lg bg-light"
-                                placeholder="000.000.000-00"
-                                required
-                            >
+                        
+                        <div class="mb-5">
+                            <label class="form-label fw-bold small text-muted text-uppercase">Identificação do Cidadão</label>
+                            <div class="input-group shadow-sm rounded-pill overflow-hidden border" style="height: 45px; border-color: #e2e8f0 !important;">
+                                <span class="input-group-text border-0 bg-white ps-3">
+                                    <i class="fas fa-user text-muted small"></i>
+                                </span>
+                                <input type="text" name="cpf" class="form-control border-0 ps-2" 
+                                       placeholder="Digite o CPF para agendar..." required
+                                       style="height: 45px; font-size: 0.95rem; background: #fff; box-shadow: none;">
+                            </div>
                         </div>
 
-                        <div class="row">
+                        <hr class="opacity-10 mb-5">
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold text-muted small">
-                                    Unidade de Saúde
-                                </label>
-
-                                <select
-                                    name="posto"
-                                    id="id_posto"
-                                    class="form-select border-primary"
-                                    required
-                                >
-                                    <option value="">
-                                        Selecione o posto...
-                                    </option>
-
+                        <div class="row g-4">
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted text-uppercase">1. Escolha a Unidade</label>
+                                <select name="posto" id="id_posto" class="form-select shadow-sm rounded-4 border-light-subtle" style="height: 45px;">
+                                    <option value="">Selecione o Posto de Saúde...</option>
                                     {% for posto in postos %}
-                                        <option value="{{ posto.id }}">
-                                            {{ posto.nome }}
-                                        </option>
+                                        <option value="{{ posto.id }}">{{ posto.nome }}</option>
                                     {% endfor %}
                                 </select>
                             </div>
 
-                            <div class="col-md-6 mb-3">
-                                <label class="form-label fw-bold text-muted small">
-                                    Vacina Desejada
-                                </label>
-
-                                <select
-                                    name="item_estoque"
-                                    id="id_item_estoque"
-                                    class="form-select border-primary"
-                                    required
-                                >
-                                    <option value="">
-                                        Escolha o posto primeiro...
-                                    </option>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted text-uppercase">2. Vacina Disponível</label>
+                                <select name="item_estoque" id="id_item_estoque" class="form-select shadow-sm rounded-4 border-light-subtle" style="height: 45px;">
+                                    <option value="">Aguardando escolha do posto...</option>
                                 </select>
                             </div>
 
-                        </div>
+                            <div class="col-md-6">
+                                <label class="form-label fw-bold small text-muted text-uppercase">3. Data e Horário</label>
+                                <input type="datetime-local" name="data_hora" class="form-control shadow-sm rounded-4 border-light-subtle" style="height: 45px;" required>
+                            </div>
 
-                        <div class="mb-4">
-                            <label class="form-label fw-bold text-muted small">
-                                Data e Horário
-                            </label>
-
-                            <input
-                                type="datetime-local"
-                                name="data_hora"
-                                class="form-control"
-                                required
-                            >
-
-                            <div class="form-text">
-                                Consulte os horários de funcionamento da unidade.
+                            <div class="col-md-6 d-flex align-items-end">
+                                <button type="submit" class="btn btn-primary w-100 fw-bold rounded-pill shadow-sm d-flex align-items-center justify-content-center" style="height: 45px;">
+                                    <i class="fas fa-check-circle me-2"></i> CONFIRMAR AGENDAMENTO
+                                </button>
                             </div>
                         </div>
-
-                        <div class="alert alert-warning border-0 small">
-                            <i class="fa-solid fa-circle-info me-2"></i>
-
-                            Sua dose será reservada por
-                            <strong>24 horas</strong>
-                            após o horário agendado.
-                            Após esse prazo, a reserva expira automaticamente.
-                        </div>
-
-                        <button
-                            type="submit"
-                            class="btn btn-primary btn-lg w-100 fw-bold shadow-sm"
-                        >
-                            Confirmar Agendamento
-                        </button>
-
                     </form>
 
                 </div>
@@ -114,109 +91,33 @@
     </div>
 </div>
 
-<!-- jQuery -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- SweetAlert2 -->
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-
 <script>
+    // Lógica do Pop-up (Toast)
+    document.addEventListener('DOMContentLoaded', function () {
+        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
+        var toastList = toastElList.map(function (toastEl) {
+            return new bootstrap.Toast(toastEl, { autohide: true, delay: 5000 })
+        })
+        toastList.forEach(toast => toast.show())
+    });
 
-    // =========================
-    // CARREGAR VACINAS VIA AJAX
-    // =========================
-
+    // Lógica AJAX para carregar vacinas
     $("#id_posto").change(function () {
-
         const url = "{% url 'ajax_carregar_vacinas' %}";
         const postoId = $(this).val();
 
-        if (postoId) {
-
-            $.ajax({
-                url: url,
-                data: {
-                    'posto_id': postoId
-                },
-
-                success: function (data) {
-
-                    let options = '<option value="">Selecione a vacina...</option>';
-
-                    data.forEach(function (item) {
-
-                        options += `
-                            <option value="${item.id}">
-                                ${item.nome_vacina}
-                            </option>
-                        `;
-                    });
-
-                    $("#id_item_estoque").html(options);
-                },
-
-                error: function () {
-
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Erro',
-                        text: 'Não foi possível carregar as vacinas.'
-                    });
-                }
-            });
-
-        } else {
-
-            $("#id_item_estoque").html(
-                '<option value="">Escolha o posto primeiro...</option>'
-            );
-        }
-    });
-
-
-    // =========================
-    // SWEETALERT MESSAGES DJANGO
-    // =========================
-
-    document.addEventListener('DOMContentLoaded', function () {
-
-        {% if messages %}
-
-            {% for message in messages %}
-
-                var msgTitle =
-                    "{% if 'success' in message.tags %}Confirmado!{% else %}Atenção{% endif %}";
-
-                var msgText = "{{ message|escapejs }}";
-
-                var msgIcon =
-                    "{% if 'success' in message.tags %}success{% else %}error{% endif %}";
-
-                var isSuccess =
-                    "{{ message.tags }}" === "success";
-
-                Swal.fire({
-                    title: msgTitle,
-                    text: msgText,
-                    icon: msgIcon,
-                    confirmButtonColor: '#2563eb',
-                    confirmButtonText: 'OK',
-                    allowOutsideClick: false
-                }).then((result) => {
-
-                    if (result.isConfirmed && isSuccess) {
-
-                        window.location.href =
-                            "{% url 'caderneta_paciente' %}";
-                    }
+        $.ajax({
+            url: url,
+            data: { 'posto_id': postoId },
+            success: function (data) {
+                let html_data = '<option value="">Selecione a vacina...</option>';
+                data.forEach(function (item) {
+                    html_data += `<option value="${item.id}">${item.nome_vacina} - Lote: ${item.lote}</option>`;
                 });
-
-            {% endfor %}
-
-        {% endif %}
-
+                $("#id_item_estoque").html(html_data);
+            }
+        });
     });
-
 </script>
-
 {% endblock %}

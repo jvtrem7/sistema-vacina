@@ -7,12 +7,17 @@ from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
 from django.db.models import Q
 from django.http import JsonResponse
+from django.db import transaction
+from django.contrib import messages  
+from .models import Agendamento     
+from .forms import VacinaForm       
 
 @login_required
 def home(request):
-    # Usamos select_related para carregar os dados de paciente e estoque de uma vez só (melhora a performance)
     todas_vacinas = Vacina.objects.all().select_related('paciente', 'item_estoque__posto').order_by('-data_aplicacao')
     total_pacientes = Paciente.objects.count()
+    context = {
+        'total_pacientes': total_pacientes,}
     return render(request, 'vacinas/index.html', {
         'vacinas': todas_vacinas,
         'total_pacientes': total_pacientes,
@@ -151,3 +156,120 @@ def carregar_vacinas_posto(request):
     posto_id = request.GET.get('posto_id')
     vacinas = Estoque.objects.filter(posto_id=posto_id, quantidade_atual__gt=0).values('id', 'nome_vacina', 'lote')
     return JsonResponse(list(vacinas), safe=False)
+
+
+def agendar_vacina(request):
+
+    if request.method == 'POST':
+        cpf = request.POST.get('cpf')
+        item_id = request.POST.get('item_estoque')
+        data_hora = request.POST.get('data_hora')
+        
+        paciente = Paciente.objects.filter(cpf=cpf).first()
+        if not paciente:
+            # Aqui você pode tratar se o paciente não existir
+            return render(request, 'vacinas/agendar_vacina.html', {'erro': 'CPF não encontrado. Faça seu cadastro primeiro.'})
+
+        with transaction.atomic():
+            estoque = Estoque.objects.select_for_update().get(id=item_id)
+            if (estoque.quantidade_atual - estoque.quantidade_reservada) > 0:
+                Agendamento.objects.create(
+                    paciente=paciente,
+                    item_estoque=estoque,
+                    data_hora=data_hora
+                )
+                estoque.quantidade_reservada += 1
+                estoque.save()
+                return redirect('sucesso_agendamento')
+            
+    postos = PostoSaude.objects.all()
+    return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
+
+@login_required
+def listar_agendamentos(request):
+    agendamentos = Agendamento.objects.filter(status='pendente').select_related('paciente', 'item_estoque', 'item_estoque__posto').order_by('data_hora')
+    
+    return render(request, 'vacinas/listar_agendamentos.html', {'agendamentos': agendamentos})
+
+def meus_agendamentos(request):
+    agendamentos = None
+    cpf_consultado = request.GET.get('cpf')
+
+    if cpf_consultado:
+        agendamentos = Agendamento.objects.filter(
+            paciente__cpf=cpf_consultado
+        ).order_by('-data_hora')
+
+    return render(request, 'vacinas/meus_agendamentos.html', {
+        'agendamentos': agendamentos,
+        'cpf_consultado': cpf_consultado
+    })
+
+@login_required
+def confirmar_agendamento(request, agendamento_id):
+    agendamento = get_object_or_404(Agendamento, id=agendamento_id)
+    
+    with transaction.atomic():
+        estoque = agendamento.item_estoque
+        if estoque.quantidade_atual > 0:
+            estoque.quantidade_atual -= 1
+            estoque.quantidade_reservada -= 1
+            estoque.save()
+            
+            agendamento.status = 'concluido'
+            agendamento.save()
+            messages.success(request, f"Dose confirmada para {agendamento.paciente.nome}!")
+        else:
+            messages.error(request, "Estoque insuficiente!")
+            
+    return redirect('listar_agendamentos')
+
+@login_required
+def cancelar_agendamento(request, agendamento_id):
+    agendamento = get_object_or_404(Agendamento, id=agendamento_id)
+    
+    with transaction.atomic():
+        estoque = agendamento.item_estoque
+        # No cancelamento, a gente APENAS diminui a reserva
+        # A quantidade_atual não muda porque a vacina não foi aplicada
+        if estoque.quantidade_reservada > 0:
+            estoque.quantidade_reservada -= 1
+            estoque.save()
+            
+            agendamento.status = 'cancelado'
+            agendamento.save()
+            messages.warning(request, f"Agendamento de {agendamento.paciente.nome} cancelado.")
+            
+    return redirect('listar_agendamentos')
+
+def historico_agendamentos(request):
+    # Aqui pegamos todos que NÃO estão pendentes para ser o seu arquivo morto
+    agendamentos = Agendamento.objects.exclude(status='pendente').order_by('-data_hora')
+    return render(request, 'vacinas/historico_agendamentos.html', {'agendamentos': agendamentos})
+
+def cancelar_agendamento(request, agendamento_id):
+    agendamento = get_object_or_404(Agendamento, id=agendamento_id)
+    
+    if request.method == 'POST':
+        justificativa = request.POST.get('justificativa')
+        
+        with transaction.atomic():
+            estoque = agendamento.item_estoque
+            
+            # Se estava concluído, devolvemos 1 para a quantidade atual
+            if agendamento.status == 'concluido':
+                estoque.quantidade_atual += 1
+            # Se estava pendente, apenas removemos da reserva
+            elif agendamento.status == 'pendente':
+                estoque.quantidade_reservada -= 1
+            
+            estoque.save()
+            
+            agendamento.status = 'cancelado'
+            agendamento.justificativa_cancelamento = justificativa
+            agendamento.save()
+            
+            messages.warning(request, "Agendamento cancelado e estoque atualizado.")
+            return redirect('listar_agendamentos')
+
+    return render(request, 'vacinas/confirmar_cancelamento.html', {'agendamento': agendamento})

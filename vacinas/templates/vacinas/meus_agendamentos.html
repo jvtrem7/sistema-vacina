@@ -1,0 +1,70 @@
+{% extends 'vacinas/base_externo.html' %}
+{% block content %}
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card border-0 shadow-lg p-4" style="border-radius: 20px;">
+                <h3 class="fw-bold text-dark mb-4 text-center">Meus Agendamentos</h3>
+                
+                <form method="GET" class="mb-4">
+                    <div class="input-group">
+                        <input type="text" name="cpf" class="form-control rounded-pill-start" placeholder="Digite seu CPF para consultar..." value="{{ cpf_consultado|default:'' }}">
+                        <button class="btn btn-primary rounded-pill-end px-4" type="submit">Consultar</button>
+                    </div>
+                </form>
+
+                {% if agendamentos %}
+                    <div class="list-group">
+                        {% for agend in agendamentos %}
+                        <div class="list-group-item border-0 shadow-sm mb-3 p-3" style="border-radius: 15px; background: #f8fafc;">
+                            <div class="d-flex justify-content-between align-items-start">
+                                <div>
+                                    <h6 class="fw-bold mb-1 text-primary">{{ agend.item_estoque.nome_vacina }}</h6>
+                                    <p class="text-muted small mb-0">
+                                        <i class="fas fa-hospital me-1"></i> {{ agend.item_estoque.posto.nome }}<br>
+                                        <i class="fas fa-clock me-1"></i> {{ agend.data_hora|date:"d/m/Y - H:i" }}
+                                    </p>
+                                </div>
+                                <div class="text-end">
+                                    {% if agend.status == 'pendente' %}
+                                        <span class="badge bg-warning text-dark rounded-pill shadow-sm">Pendente</span>
+                                    {% elif agend.status == 'concluido' %}
+                                        <span class="badge bg-success rounded-pill shadow-sm">Concluído</span>
+                                    {% else %}
+                                        <span class="badge bg-danger rounded-pill shadow-sm">Cancelado</span>
+                                    {% endif %}
+                                </div>
+                            </div>
+
+                            {% if agend.status == 'cancelado' %}
+                                <div class="alert alert-danger mt-3 mb-0 py-2 small border-0" style="border-radius: 10px; background-color: rgba(220, 53, 69, 0.1); color: #dc3545;">
+                                    <i class="fas fa-info-circle me-1"></i>
+                                    <strong>Motivo do cancelamento:</strong> {{ agend.justificativa_cancelamento|default:"Não informado pelo posto." }}
+                                </div>
+                            {% endif %}
+                        </div>
+                        {% endfor %}
+                    </div>
+                {% elif cpf_consultado %}
+                    <div class="text-center py-4">
+                        <i class="fas fa-search fa-3x text-muted mb-3"></i>
+                        <p class="text-muted">Nenhum agendamento encontrado para o CPF: <strong>{{ cpf_consultado }}</strong></p>
+                    </div>
+                {% endif %}
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'index_escolha' %}" class="text-decoration-none small text-muted hover-primary">
+                        <i class="fas fa-arrow-left me-1"></i> Voltar ao Portal
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .hover-primary:hover { color: #0d6efd !important; }
+    .list-group-item { transition: transform 0.2s; }
+    .list-group-item:hover { transform: scale(1.01); }
+</style>
+{% endblock %}

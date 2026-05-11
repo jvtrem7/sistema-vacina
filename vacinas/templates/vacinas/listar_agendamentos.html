@@ -1,0 +1,74 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<div class="card shadow border-0 p-4">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h4 class="fw-bold text-primary mb-0">
+            <i class="fas fa-calendar-alt me-2"></i>Agendamentos Pendentes
+        </h4>
+        <a href="{% url 'historico_agendamentos' %}" class="btn btn-sm btn-outline-secondary rounded-pill px-3">
+            <i class="fas fa-history me-1"></i> Ver Histórico
+        </a>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table table-hover align-middle">
+            <thead class="table-light"> 
+                <tr>
+                    <td>DATA/HORA</td>
+                    <td>PACIENTE (CPF)</td>
+                    <td>VACINA</td>
+                    <td>POSTO</td>
+                    <td class="text-center">AÇÕES</td>
+                </tr>
+            </thead>
+            <tbody class="table-mobile-cards"> 
+                {% for agend in agendamentos %}
+                <tr>
+                    <td class="fw-bold" data-label="DATA/HORA">{{ agend.data_hora|date:"d/m/Y H:i" }}</td>
+                    <td data-label="PACIENTE">{{ agend.paciente.nome }} <br> <small class="text-muted">{{ agend.paciente.cpf }}</small></td>
+                    <td data-label="VACINA"><span class="badge bg-info-subtle text-info">{{ agend.item_estoque.nome_vacina }}</span></td>
+                    <td data-label="POSTO">{{ agend.item_estoque.posto.nome }}</td>
+                    <td class="text-center" data-label="AÇÕES">
+                        
+                        <a href="{% url 'confirmar_agendamento' agend.id %}" class="btn btn-sm btn-success rounded-pill shadow-sm me-1">
+                            <i class="fas fa-check"></i>
+                        </a>
+
+                        <button type="button" class="btn btn-sm btn-outline-danger rounded-pill shadow-sm" data-bs-toggle="modal" data-bs-target="#modalCancelamento{{ agend.id }}">
+                            <i class="fas fa-times"></i>
+                        </button>
+
+                        <div class="modal fade" id="modalCancelamento{{ agend.id }}" tabindex="-1" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content" style="border-radius: 20px;">
+                                    <form action="{% url 'cancelar_agendamento' agend.id %}" method="POST">
+                                        {% csrf_token %}
+                                        <div class="modal-header border-0">
+                                            <h5 class="modal-title fw-bold">Cancelar Agendamento</h5>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                                        <div class="modal-body text-start">
+                                            <p class="text-muted small">Informe o motivo do cancelamento para o cidadão:</p>
+                                            <textarea name="justificativa" class="form-control border-0 bg-light" rows="3" placeholder="Ex: Erro no lançamento, Paciente não compareceu..." required style="border-radius: 12px;"></textarea>
+                                        </div>
+                                        <div class="modal-footer border-0">
+                                            <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">Voltar</button>
+                                            <button type="submit" class="btn btn-danger rounded-pill px-4">Confirmar Cancelamento</button>
+                                        </div>
+                                    </form>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="5" class="text-center text-muted py-5">Nenhum agendamento pendente encontrado.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+</div>
+{% endblock %}

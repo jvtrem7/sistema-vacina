@@ -1,0 +1,80 @@
+{% extends 'vacinas/base.html' %}
+
+{% block content %}
+<div class="container mt-4">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0" style="border-radius: 15px;">
+                <div class="card-body p-4">
+                    <h3 class="fw-bold text-primary mb-4">
+                        <i class="fa-solid fa-calendar-check me-2"></i>Agendar Minha Dose
+                    </h3>
+                    
+                    <form method="POST">
+                        {% csrf_token %}
+                        
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small">Seu CPF</label>
+                            <input type="text" name="cpf" class="form-control form-control-lg bg-light" placeholder="000.000.000-00" required>
+                        </div>
+
+                        <div class="row">
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-muted small">Unidade de Saúde</label>
+                                <select name="posto" id="id_posto" class="form-select border-primary" required>
+                                    <option value="">Selecione o posto...</option>
+                                    {% for posto in postos %}
+                                        <option value="{{ posto.id }}">{{ posto.nome }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+
+                            <div class="col-md-6 mb-3">
+                                <label class="form-label fw-bold text-muted small">Vacina Desejada</label>
+                                <select name="item_estoque" id="id_item_estoque" class="form-select border-primary" required>
+                                    <option value="">Escolha o posto primeiro...</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="mb-4">
+                            <label class="form-label fw-bold text-muted small">Data e Horário</label>
+                            <input type="datetime-local" name="data_hora" class="form-control" required>
+                            <div class="form-text">Consulte os horários de funcionamento da unidade.</div>
+                        </div>
+
+                        <div class="alert alert-warning border-0 small">
+                            <i class="fa-solid fa-circle-info me-2"></i>
+                            Sua dose será reservada por <strong>24 horas</strong> após o horário agendado. Após esse prazo, a reserva expira automaticamente.
+                        </div>
+
+                        <button type="submit" class="btn btn-primary btn-lg w-100 fw-bold shadow-sm">
+                            Confirmar Agendamento
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $("#id_posto").change(function () {
+        const url = "{% url 'ajax_carregar_vacinas' %}";
+        const postoId = $(this).val();
+
+        $.ajax({
+            url: url,
+            data: { 'posto_id': postoId },
+            success: function (data) {
+                let options = '<option value="">Selecione a vacina...</option>';
+                data.forEach(function (item) {
+                    options += `<option value="${item.id}">${item.nome_vacina}</option>`;
+                });
+                $("#id_item_estoque").html(options);
+            }
+        });
+    });
+</script>
+{% endblock %}

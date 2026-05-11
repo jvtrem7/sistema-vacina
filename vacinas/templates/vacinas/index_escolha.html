@@ -56,18 +56,23 @@
 </div>
 
 <style>
-    /* Ajuste 6: Forçar o body a não ter scroll se possível */
-    body { overflow: hidden; background-color: #f8fafc; }
+    /* Trava o scroll e define o fundo */
+    body { 
+        overflow: hidden; 
+        background-color: #f8fafc; 
+        height: 100vh;
+    }
 
     .bg-gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }
     .bg-gradient-green { background: linear-gradient(135deg, #065f46 0%, #10b981 100%); }
 
     .transition-card { transition: all 0.4s cubic-bezier(0.165, 0.84, 0.44, 1); }
-    .transition-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }
     
-    .hover-lift { transition: transform 0.2s ease; }
-    .hover-lift:hover { transform: scale(1.01); }
-
+    /* Hover só para desktop para não bugar o toque no celular */
+    @media (min-width: 992px) {
+        .transition-card:hover { transform: translateY(-8px); box-shadow: 0 20px 40px rgba(0,0,0,0.1) !important; }
+    }
+    
     .decoration-circle {
         position: absolute; top: -15px; right: -15px; width: 80px; height: 80px;
         background: rgba(255,255,255,0.1); border-radius: 50%; z-index: 0;
@@ -77,6 +82,18 @@
     @keyframes fadeIn {
         from { opacity: 0; transform: translateY(-10px); }
         to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* O SEGREDO PARA CABER TUDO NO CELULAR */
+    @media (max-width: 576px) {
+        .container { padding-top: 1rem !important; padding-bottom: 1rem !important; }
+        img { max-height: 70px !important; } /* Diminui a logo */
+        h1 { font-size: 1.5rem !important; } /* Diminui o título */
+        .fa-3x { font-size: 2rem !important; } /* Diminui os ícones dos cards */
+        .p-4 { padding: 1rem !important; } /* Compacta o espaçamento interno */
+        .g-4 { gap: 1rem !important; } /* Aproxima um card do outro */
+        h4 { font-size: 1.1rem !important; }
+        p.small { font-size: 0.7rem !important; margin-bottom: 0.5rem !important; }
     }
 </style>
 {% endblock %}

@@ -12,6 +12,12 @@
                         <button class="btn btn-primary rounded-pill-end px-4" type="submit">Consultar</button>
                     </div>
                 </form>
+                
+                <div class="text-center mt-4 pb-2">
+    <a href="{% url 'caderneta_paciente' %}" class="text-decoration-none small text-muted hover-primary transition-all">
+        <i class="fas fa-arrow-left me-2"></i>Voltar ao Portal
+    </a>
+</div>
 
                 {% if agendamentos %}
                     <div class="list-group">

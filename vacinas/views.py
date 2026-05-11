@@ -63,15 +63,19 @@ def editar_paciente(request, pk):
         return redirect('listar_pacientes')
     return render(request, 'vacinas/cadastro_paciente.html', {'form': form, 'editando': True})
 
+def portal_boas_vindas(request):
+    return render(request, 'vacinas/portal_boas_vindas.html')
+
 def caderneta_paciente(request):
-    cpf_busca = request.GET.get('cpf')
-    vacinas = None
+    cpf = request.GET.get('cpf')
     paciente = None
-    if cpf_busca:
-        paciente = Paciente.objects.filter(cpf=cpf_busca).first()
-        if paciente:
-            vacinas = Vacina.objects.filter(paciente=paciente).order_by('-data_aplicacao')
-    return render(request, 'vacinas/caderneta.html', {'vacinas': vacinas, 'paciente': paciente, 'cpf_busca': cpf_busca})
+    if cpf:
+        paciente = Paciente.objects.filter(cpf=cpf).first()
+    
+    return render(request, 'vacinas/caderneta.html', {
+        'paciente': paciente,
+        'busca_ativa': bool(cpf)
+    })
 
 def index_escolha(request):
     return render(request, 'vacinas/index_escolha.html')

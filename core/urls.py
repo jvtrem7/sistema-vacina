@@ -12,6 +12,7 @@ urlpatterns = [
     path('registrar-dose/', views.registrar_dose, name='registrar_dose'),
     path('pacientes/', views.listar_pacientes, name='listar_pacientes'),
     path('editar-paciente/<int:pk>/', views.editar_paciente, name='editar_paciente'),
+    path('portal/', views.portal_boas_vindas, name='portal_boas_vindas'),
     path('caderneta/', views.caderneta_paciente, name='caderneta_paciente'),
     path('postos/', views.busca_postos, name='busca_postos'),
     path('login/', auth_views.LoginView.as_view(template_name='vacinas/login.html'), name='login'),

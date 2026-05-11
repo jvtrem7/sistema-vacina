@@ -63,7 +63,7 @@
             display: flex !important; position: fixed; bottom: 30px; left: 50%;
             transform: translateX(-50%); width: 90%; max-width: 380px;
             background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 10px;
+            -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 8px;
             justify-content: space-around; align-items: center; z-index: 9999;
             border: 1px solid rgba(0,0,0,0.05); box-shadow: 0 15px 35px rgba(0,0,0,0.1);
         }
@@ -149,6 +149,10 @@
 <div class="mobile-app-nav d-md-none">
         {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
             <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i></a>
+            <a href="{% url 'listar_estoque' %}" class="{% if 'estoque' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-boxes-stacked"></i></a>
+            <a href="{% url 'listar_agendamentos' %}" class="{% if 'agendamentos' in request.path %}active{% endif %}">
+            <i class="fa-solid fa-calendar-check"></i></a>
             <a href="{% url 'listar_pacientes' %}" class="{% if 'pacientes' in request.path %}active{% endif %}"><i class="fa-solid fa-user-group"></i></a>
             <a href="{% url 'registrar_dose' %}" class="{% if 'dose' in request.path %}active{% endif %}"><i class="fa-solid fa-circle-plus"></i></a>
             <a href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();" class="text-danger"><i class="fa-solid fa-right-from-bracket"></i></a>

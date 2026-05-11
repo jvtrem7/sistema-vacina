@@ -3,10 +3,10 @@ import dj_database_url
 from pathlib import Path
 from dotenv import load_dotenv
 
-# 1. Carrega as variáveis do arquivo .env
-load_dotenv()
-
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Carrega .env sempre da raiz do projeto (não depende da pasta de onde você rodou o runserver)
+load_dotenv(BASE_DIR / '.env')
 
 # 2. Configurações Básicas
 SECRET_KEY = os.environ.get('SECRET_KEY', 'django-insecure-substitua-isso-se-necessario')
@@ -67,14 +67,23 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'core.wsgi.application'
 
-# 4. Banco de Dados (Supabase)
-DATABASES = {
-    'default': dj_database_url.config(
-        default=os.environ.get('DATABASE_URL'),
-        conn_max_age=0, # MELHORIA: Mantém a conexão aberta por mais tempo (mais rápido)
-        ssl_require=True
-    )
-}
+# 4. Banco de Dados (Postgres via DATABASE_URL em produção; SQLite local sem .env)
+_database_url = os.environ.get('DATABASE_URL')
+if _database_url:
+    DATABASES = {
+        'default': dj_database_url.config(
+            default=_database_url,
+            conn_max_age=0,
+            ssl_require=True,
+        )
+    }
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
+    }
 
 # 5. Configurações de Segurança e Idioma
 AUTH_PASSWORD_VALIDATORS = [

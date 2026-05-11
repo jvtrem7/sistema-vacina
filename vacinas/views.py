@@ -1,4 +1,6 @@
 import csv
+import json
+import os
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -6,7 +8,9 @@ from .models import Vacina, Paciente, Estoque, PostoSaude, Agendamento
 from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
 from django.db.models import Q
+from django.conf import settings
 from django.http import JsonResponse
+from django.views.decorators.http import require_POST
 from django.db import transaction
 from django.contrib import messages  
 from .models import Agendamento     
@@ -85,6 +89,202 @@ def caderneta_paciente(request):
 
 def index_escolha(request):
     return render(request, 'vacinas/index_escolha.html')
+
+
+PORTAL_CHAT_SYSTEM_PROMPT = """Você é o assistente educativo do Portal do Cidadão do sistema EasyVacc (imunização).
+Responda SEMPRE em português do Brasil, com linguagem clara e acessível ao público geral.
+
+Escopo: apenas temas relacionados a vacinas e imunização (importância, prevenção de doenças, imunidade individual e coletiva,
+calendário vacinal como referência geral do SUS, segurança das vacinas, mitos frequentes, efeitos comuns, campanhas).
+
+Regras:
+- Explique a importância das vacinas com base em evidências científicas e consensos de saúde pública.
+- Reforce que vacinas protegem a pessoa vacinada e contribuem para proteger quem não pode vacinar (imunização coletiva).
+- Nunca prescreva medicamentos, doses, intervalos personalizados nem diga se a pessoa deve ou não tomar uma vacina específica: oriente buscar unidade de saúde ou profissional para decisão individual.
+- Não interprete exames, diagnósticos ou sintomas; se perguntarem sobre caso clínico, recomende procurar serviço de saúde.
+- Se a pergunta fugir do tema vacinas/imunização, recuse educadamente e convide a perguntar sobre vacinas.
+- Respostas objetivas (parágrafos curtos). Use tópicos quando ajudar a leitura no celular."""
+
+
+def _portal_chat_llm_config():
+    """Groq (tier gratuito) tem prioridade; senão OpenAI. Retorna None se nenhuma chave."""
+    groq = (os.environ.get('GROQ_API_KEY') or '').strip()
+    if groq:
+        return {
+            'api_key': groq,
+            'url': 'https://api.groq.com/openai/v1/chat/completions',
+            'model': (os.environ.get('GROQ_MODEL') or 'llama-3.1-8b-instant').strip() or 'llama-3.1-8b-instant',
+        }
+    oa = (os.environ.get('OPENAI_API_KEY') or '').strip()
+    if oa:
+        return {
+            'api_key': oa,
+            'url': 'https://api.openai.com/v1/chat/completions',
+            'model': (os.environ.get('OPENAI_MODEL') or 'gpt-4o-mini').strip() or 'gpt-4o-mini',
+        }
+    return None
+
+
+def _portal_chat_offline_reply(text):
+    """Respostas educativas fixas (sem API, sem custo). Não substitui orientação individual de saúde."""
+    t = text.lower().strip()
+    if any(w in t for w in ('influenza', 'gripe')):
+        return (
+            'A vacina da influenza (gripe) reduz o risco de infecção grave, internação e óbito, principalmente em '
+            'idosos, crianças, gestantes e pessoas com doenças crônicas. A gripe muda de cepa a cada temporada; por '
+            'isso a dose é atualizada anualmente. Para saber se você está no calendário indicado neste ano e onde '
+            'vacinar, procure uma unidade de saúde.'
+        )
+    if any(w in t for w in ('covid', 'coronavírus', 'coronavirus', 'pfizer', 'astrazeneca', 'coronavac')):
+        return (
+            'As vacinas contra COVID-19 foram desenvolvidas e monitoradas com os mesmos critérios de segurança e '
+            'eficácia das demais vacinas. Elas ajudam a evitar formas graves da doença e aliviam a pressão sobre o '
+            'SUS. Dúvidas sobre dose de reforço ou contraindicações pessoais devem ser resolvidas com um profissional '
+            'de saúde ou no posto de vacinação.'
+        )
+    if 'sarampo' in t:
+        return (
+            'O sarampo é altamente contagioso e pode causar complicações graves. A vacina tríplice viral (ou '
+            'vacinas que a incluem) é a principal forma de proteção individual e de bloquear surtos (imunidade '
+            'coletiva). Mantenha a caderneta em dia e siga orientações do calendário do SUS na sua faixa etária.'
+        )
+    if 'hpv' in t or 'papiloma' in t:
+        return (
+            'A vacina contra o HPV protege dos tipos de vírus mais ligados a câncer de colo do útero e outras '
+            'neoplasias, além de verrugas. No SUS, há faixas etárias e públicos-alvo definidos pelo Ministério da '
+            'Saúde. A decisão de vacinar e o esquema exato devem ser confirmados na unidade de saúde.'
+        )
+    if any(w in t for w in ('gestante', 'gravida', 'grávida', 'amamentação', 'amamentacao')):
+        return (
+            'Gestantes e puérperas costumam ter indicações específicas no calendário (ex.: dTpa, influenza, '
+            'hepatite B, conforme orientação local). Vacinar na gestação também protege o bebê nos primeiros meses. '
+            'Sempre leve a carteira de pré-natal e pergunte na equipe de saúde qual é o esquema indicado para você.'
+        )
+    if any(w in t for w in ('bebê', 'bebe', 'criança', 'crianca', 'infantil', 'calendário', 'calendario')):
+        return (
+            'O calendário infantil organiza doses ao longo dos primeiros anos de vida para proteger contra doenças '
+            'como poliomielite, sarampo, meningite, entre outras. Atrasar doses aumenta a janela de risco; ao '
+            'retomar o esquema, o posto orienta como “recuperar” as vacinas. Leve a caderneta da criança em todo '
+            'atendimento.'
+        )
+    if any(w in t for w in ('efeito', 'reação', 'dor no braço', 'febre', 'mito', 'autismo')):
+        return (
+            'Reações leves (dor no local, cansaço, febre baixa) podem ocorrer e costumam melhorar em poucos dias. '
+            'Centenas de estudos não associam vacinas ao autismo; essa ideia é um mito desmentido pela ciência. '
+            'Sinais muito intensos ou persistentes merecem avaliação presencial no serviço de saúde.'
+        )
+    if any(w in t for w in ('feb', 'amarela', 'febre amarela')):
+        return (
+            'A vacina contra febre amarela é altamente eficaz e recomendada em áreas de risco ou viagem para '
+            'regiões endêmicas. Existem contraindicações importantes (ex.: imunodeprimidos, alergia grave a ovo em '
+            'alguns contextos). Confirme no posto se você está apto e se há necessidade de comprovante para viagem.'
+        )
+    if any(w in t for w in ('importância', 'importancia', 'por que vacinar', 'porque vacinar', 'vale a pena')):
+        return (
+            'Vacinas treinam o sistema imunológico a reconhecer germes sem você precisar passar pela doença completa. '
+            'Assim você evita sequelas, internações e mortes evitáveis. Além disso, quando muitas pessoas vacinam, '
+            'protegemos quem não pode receber a vacina (imunidade coletiva). É um dos investimentos de saúde pública '
+            'com maior retorno para a sociedade.'
+        )
+    if any(w in t for w in ('olá', 'ola', 'oi ', ' oi', 'bom dia', 'boa tarde', 'boa noite')):
+        return (
+            'Olá! Sou o assistente educativo do EasyVacc sobre vacinas. Pergunte, por exemplo, sobre influenza, '
+            'calendário infantil, importância da imunização ou mitos comuns. Esta resposta é automática e gratuita; '
+            'para orientação individual (doses, datas, vacinas indicadas para você), procure sempre um profissional '
+            'de saúde.'
+        )
+    return (
+        'Sou um assistente educativo sobre vacinas neste portal. Posso falar de prevenção, importância da imunização '
+        'coletiva, segurança das vacinas e mitos frequentes em linguagem simples. Não substituo consulta médica nem '
+        'digo quais doses você deve tomar sem avaliar seu caso.\n\n'
+        'Dica gratuita: para respostas mais longas e personalizadas, crie uma conta em console.groq.com, gere uma '
+        'chave e coloque no servidor como GROQ_API_KEY (uso generoso em tier gratuito).'
+    )
+
+
+@require_POST
+def portal_chat(request):
+    """Chat educativo: Groq (grátis), OpenAI (pago) ou modo offline sem chave."""
+    try:
+        body = json.loads(request.body.decode('utf-8'))
+    except (json.JSONDecodeError, UnicodeDecodeError):
+        return JsonResponse({'error': True, 'message': 'Requisição inválida.'}, status=400)
+
+    raw_messages = body.get('messages')
+    if not isinstance(raw_messages, list) or not raw_messages:
+        return JsonResponse({'error': True, 'message': 'Envie sua pergunta.'}, status=400)
+
+    cleaned = []
+    for m in raw_messages[-16:]:
+        if not isinstance(m, dict):
+            continue
+        role = m.get('role')
+        content = m.get('content')
+        if role not in ('user', 'assistant') or not isinstance(content, str):
+            continue
+        content = content.strip()[:4000]
+        if not content:
+            continue
+        cleaned.append({'role': role, 'content': content})
+
+    if not cleaned or cleaned[-1]['role'] != 'user':
+        return JsonResponse({'error': True, 'message': 'Pergunta inválida.'}, status=400)
+
+    last_question = cleaned[-1]['content']
+    cfg = _portal_chat_llm_config()
+    if not cfg:
+        reply = _portal_chat_offline_reply(last_question)
+        return JsonResponse({'reply': reply, 'offline': True})
+
+    api_messages = [{'role': 'system', 'content': PORTAL_CHAT_SYSTEM_PROMPT}] + cleaned
+
+    try:
+        r = requests.post(
+            cfg['url'],
+            headers={
+                'Authorization': f'Bearer {cfg["api_key"]}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'model': cfg['model'],
+                'messages': api_messages,
+                'max_tokens': 900,
+                'temperature': 0.55,
+            },
+            timeout=60,
+        )
+    except requests.RequestException:
+        return JsonResponse(
+            {'error': True, 'message': 'Não foi possível contatar o serviço de IA. Tente novamente.'},
+            status=502,
+        )
+
+    if r.status_code != 200:
+        msg = 'Serviço de IA indisponível no momento. Tente mais tarde.'
+        if settings.DEBUG:
+            try:
+                err = r.json()
+                if isinstance(err, dict) and 'error' in err:
+                    inner = err['error']
+                    detail = inner.get('message') if isinstance(inner, dict) else str(inner)
+                else:
+                    detail = str(err)[:400]
+                if detail:
+                    msg = f'{msg} Detalhe: {detail}'
+            except (ValueError, TypeError):
+                msg = f'{msg} (HTTP {r.status_code})'
+        return JsonResponse({'error': True, 'message': msg}, status=502)
+
+    try:
+        data = r.json()
+        reply = data['choices'][0]['message']['content'].strip()
+    except (KeyError, IndexError, TypeError):
+        return JsonResponse(
+            {'error': True, 'message': 'Resposta inesperada do serviço. Tente novamente.'},
+            status=502,
+        )
+
+    return JsonResponse({'reply': reply, 'offline': False})
 
 @login_required
 def listar_estoque(request):

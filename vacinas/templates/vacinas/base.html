@@ -164,7 +164,7 @@
             {% else %}
                 <p class="menu-header" style="padding: 1.2rem 1.2rem 0.4rem; text-transform: uppercase; font-size: 0.65rem; font-weight: 700; color: #94a3b8;">Portal</p>
                 <a class="nav-link {% if 'caderneta' in request.path %}active{% endif %}" href="{% url 'caderneta_paciente' %}"><i class="fas fa-search"></i> Consultar CPF</a>
-                <a class="nav-link {% if 'agendar' in request.path %}active{% endif %}" href="{% url 'agendar_vacina' %}"><i class="fas fa-calendar-check"></i> Agendar Dose</a>
+                <a class="nav-link {% if '/agendar' in request.path %}active{% endif %}" href="{% url 'agendar_vacina' %}"><i class="fas fa-calendar-check"></i> Agendar Dose</a>
                 <a class="nav-link {% if 'meus-agendamentos' in request.path %}active{% endif %}" href="{% url 'meus_agendamentos' %}">
     <i class="fas fa-clock-rotate-left"></i> Meus Agendamentos
 </a>
@@ -181,10 +181,13 @@
         </div>
     </div>
 
+    {% if not user.is_authenticated or '/caderneta' in request.path or '/postos' in request.path or '/agendar' in request.path or 'meus-agendamentos' in request.path %}
+    {% include 'vacinas/portal_chatbot.html' %}
+    {% endif %}
+
     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">{% csrf_token %}</form>
 
-    <div class="mobile-app-nav">
-<div class="mobile-app-nav d-md-none">
+    <div class="mobile-app-nav d-md-none">
         {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
             <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i></a>
             <a href="{% url 'listar_estoque' %}" class="{% if 'estoque' in request.path %}active{% endif %}">
@@ -197,7 +200,7 @@
         {% else %}
             <a href="{% url 'caderneta_paciente' %}" class="{% if 'caderneta' in request.path %}active{% endif %}"><i class="fa-solid fa-address-card"></i></a>
             <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}"><i class="fa-solid fa-map-location-dot"></i></a>
-            <a href="{% url 'agendar_vacina' %}" class="{% if 'agendar' in request.path %}active{% endif %}"><i class="fa-solid fa-calendar-plus"></i></a>
+            <a href="{% url 'agendar_vacina' %}" class="{% if '/agendar' in request.path %}active{% endif %}"><i class="fa-solid fa-calendar-plus"></i></a>
             <a href="{% url 'meus_agendamentos' %}" class="{% if 'meus-agendamentos' in request.path %}active{% endif %}"><i class="fa-solid fa-clock-rotate-left"></i></a>
             <a href="{% url 'index_escolha' %}">
               <i class="fa-solid fa-arrow-left"></i></a>

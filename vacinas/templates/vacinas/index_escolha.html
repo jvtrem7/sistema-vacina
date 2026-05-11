@@ -5,6 +5,7 @@
     <title>EasyVacc</title>
 </head>
 {% block content %}
+<div class="index-escolha-viewport">
 <div class="container min-vh-100 d-flex flex-column justify-content-center py-5">    
     <div class="text-center mb-4 animate-fade-in">
         <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc Logo" style="max-height: 100px; width: auto; filter: drop-shadow(0 10px 15px rgba(0,0,0,0.1));">
@@ -54,13 +55,15 @@
         <p style="font-size: 0.7rem;" class="fw-bold mb-0">Desenvolvido por Alunos Da Univassouras - Saquarema/RJ</p>
     </div>
 </div>
+</div>
 
 <style>
-    /* Trava o scroll e define o fundo */
-    body { 
-        overflow: hidden; 
-        background-color: #f8fafc; 
-        height: 100vh;
+    /* Fundo da landing (overflow no wrapper evita cortar botões position:fixed em alguns navegadores) */
+    body { background-color: #f8fafc; min-height: 100vh; }
+    .index-escolha-viewport {
+        overflow-x: hidden;
+        max-height: 100vh;
+        overflow-y: auto;
     }
 
     .bg-gradient-blue { background: linear-gradient(135deg, #1e40af 0%, #3b82f6 100%); }

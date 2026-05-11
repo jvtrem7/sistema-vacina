@@ -162,6 +162,10 @@
         <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}">
             <i class="fa-solid fa-house-chimney"></i>
         </a>
+        
+        <a href="{% url 'busca_postos' %}" class="{% if 'postos' in request.path %}active{% endif %}">
+        <i class="fa-solid fa-map-location-dot"></i>
+    </a>
         <a href="{% url 'listar_agendamentos' %}" class="{% if 'agendamentos' in request.path %}active{% endif %}">
             <i class="fa-solid fa-calendar-check"></i>
         </a>

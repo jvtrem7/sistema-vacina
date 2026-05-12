@@ -108,7 +108,7 @@
     }
 
     /* --- MOBILE REESTILIZADO --- */
-    @media (max-width: 991px) {
+   @media (max-width: 991px) {
     body { background-color: var(--bg-light); }
     .sidebar { display: none !important; }
     .main-content { margin-left: 0; width: 100%; padding: 1rem; padding-bottom: 120px; }
@@ -134,35 +134,51 @@
     .table-mobile-cards td::before { content: attr(data-label); font-weight: 700 !important; color: var(--text-slate) !important; font-size: 0.7rem !important; text-transform: uppercase !important; flex: 1 !important; padding-right: 10px; text-align: left; }
     .table-mobile-cards td > * { flex: 2 !important; text-align: right !important; font-size: 0.95rem; }
 
-    /* --- FIX: BOTÃO DE PESQUISA BUGADO (ADICIONE ISSO AQUI) --- */
+    /* --- CORREÇÃO DOS BOTÕES E LUPAS (SÓ A LUPA NO MOBILE) --- */
     .input-group {
         display: flex !important;
-        flex-wrap: nowrap !important; /* Força o botão a ficar na mesma linha */
+        flex-wrap: nowrap !important; 
         background: #ffffff !important;
-        border-radius: 50px !important; /* Estilo pílula */
-        padding: 4px !important;
+        border-radius: 50px !important; 
+        padding: 5px !important; /* Espaço interno para o botão respirar */
         border: 1px solid #e2e8f0 !important;
-        height: 54px !important;
+        height: 50px !important; /* Altura padrão de app */
         overflow: hidden;
+        align-items: center !important;
     }
 
     .input-group input {
         flex: 1 !important;
+        min-width: 0 !important; /* Impede o input de empurrar o botão para fora */
         border: none !important;
         box-shadow: none !important;
-        padding-left: 20px !important;
+        padding-left: 15px !important;
         font-size: 0.9rem !important;
         background: transparent !important;
     }
 
     .input-group .btn {
         border-radius: 50px !important;
-        padding: 0 25px !important;
-        height: 100% !important;
-        white-space: nowrap !important; /* Impede o texto de quebrar */
-        font-weight: bold !important;
-        font-size: 0.8rem !important;
+        width: 40px !important; /* Largura fixa para ficar redondo */
+        height: 40px !important; /* Altura fixa para ficar redondo */
+        padding: 0 !important;
+        display: flex !important;
+        align-items: center;
+        justify-content: center;
         margin: 0 !important;
+        flex-shrink: 0 !important; /* Impede o botão de amassar */
+    }
+
+    /* ESCONDE O TEXTO "CONSULTAR" DENTRO DO BOTÃO NO MOBILE */
+    .input-group .btn span, 
+    .input-group .btn strong {
+        display: none !important;
+    }
+
+    /* GARANTE QUE A LUPA FIQUE CENTRALIZADA E VISÍVEL */
+    .input-group .btn i {
+        margin: 0 !important;
+        font-size: 1rem !important;
     }
 }
 </style>

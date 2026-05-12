@@ -49,14 +49,28 @@
                                                 <i class="fas fa-hospital text-primary fa-lg"></i>
                                             </div>
                                             <div>
-                                                <h6 class="fw-bold mb-1 text-dark">{{ posto.nome }}</h6>
-                                                <p class="text-muted small mb-2">
-                                                    <i class="fas fa-map-pin me-1 text-danger"></i> {{ posto.endereco }}, {{ posto.bairro }}
-                                                </p>
-                                                <span class="badge bg-white text-primary border border-primary-subtle rounded-pill px-3">
-                                                    {{ posto.telefone|default:"Sem telefone" }}
-                                                </span>
-                                            </div>
+    <h6 class="fw-bold mb-1 text-dark">{{ posto.nome }}</h6>
+    <p class="text-muted small mb-2">
+        <i class="fas fa-map-pin me-1 text-danger"></i> {{ posto.endereco }}, {{ posto.bairro }}
+    </p>
+    
+    <div class="mt-3 pt-2 border-top">
+    <small class="fw-bold text-primary d-block mb-2" style="font-size: 0.7rem; text-transform: uppercase;">
+        <i class="fas fa-syringe me-1"></i> Vacinas Disponíveis:
+    </small>
+   <div class="d-flex flex-wrap gap-1">
+    {% if posto.estoque_vacinas %}
+        {% for item in posto.estoque_vacinas %}
+            <span class="badge bg-white text-primary border border-primary-subtle rounded-pill" style="font-size: 0.65rem; font-weight: 500;">
+                {{ item.nome_vacina }}
+            </span>
+        {% endfor %}
+    {% else %}
+        <span class="text-muted italic" style="font-size: 0.65rem;">Sem estoque disponível</span>
+    {% endif %}
+</div>
+</div>
+</div>
                                         </div>
                                     </div>
                                 </div>

@@ -312,6 +312,7 @@ def cadastrar_estoque(request):
 def busca_postos(request):
     """
     Função unificada para busca de postos por CEP ou Bairro (ViaCEP)
+    E agora carregando as vacinas disponíveis em cada um.
     """
     cep_digitado = request.GET.get('cep', '').strip()
     postos_encontrados = PostoSaude.objects.none()
@@ -320,12 +321,10 @@ def busca_postos(request):
     if cep_digitado:
         cep_limpo = cep_digitado.replace("-", "").replace(" ", "").replace(".", "")
         
-        # 1. Busca direta no banco pelo CEP
         postos_encontrados = PostoSaude.objects.filter(
             Q(cep=cep_digitado) | Q(cep=cep_limpo)
         )
 
-        # 2. Se não achou, consulta o ViaCEP para identificar o bairro e buscar por ele
         if not postos_encontrados.exists():
             url = f"https://viacep.com.br/ws/{cep_limpo}/json/"
             try:
@@ -337,6 +336,11 @@ def busca_postos(request):
                         postos_encontrados = PostoSaude.objects.filter(bairro__icontains=bairro_detectado)
             except:
                 pass 
+
+    for posto in postos_encontrados:
+        
+        from .models import Estoque # Importe dentro ou no topo do arquivo
+        posto.estoque_vacinas = Estoque.objects.filter(posto=posto, quantidade_atual__gt=0)
 
     return render(request, 'vacinas/postos.html', {
         'postos': postos_encontrados,

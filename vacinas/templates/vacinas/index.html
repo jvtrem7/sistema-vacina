@@ -1,82 +1,82 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<header class="mb-4 d-flex flex-column flex-md-row justify-content-between align-items-md-center gap-3">
+<header class="mb-5">
     <div class="d-flex align-items-center">
-        <a href="{% url 'index_escolha' %}" class="btn btn-outline-secondary btn-sm rounded-circle me-3 d-none d-md-inline-flex" title="Voltar ao início">
-            <i class="fas fa-arrow-left"></i>
-        </a>
-        <div>
-            <h2 class="fw-bold mb-0">Painel de Controle</h2>
-            <p class="text-muted small mb-0">Secretaria de Saúde de Saquarema</p>
-        </div>
+        <h2 class="fw-bold mb-0">Painel de Controle</h2>
     </div>
+    <p class="text-muted">Secretaria de Saúde de Saquarema</p>
 </header>
 
-<div class="row g-3 mb-4">
-    <div class="col-6 col-md-4">
-        <div class="content-card border-0 shadow-sm border-start border-primary border-5 p-3 h-100">
-            <div class="d-flex align-items-center flex-column flex-md-row text-center text-md-start">
-                <div class="rounded-circle bg-primary bg-opacity-10 p-2 p-md-3 mb-2 mb-md-0 me-md-3">
-                    <i class="fas fa-users fa-lg fa-md-2x text-primary"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted mb-1 text-uppercase x-small-mobile fw-bold">Pacientes</h6>
-                    <h2 class="fw-bold mb-0 h4-mobile">{{ total_pacientes }}</h2>
-                </div>
+<div class="row g-4 mb-5">
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center">
+            <div class="icon-box bg-primary-subtle text-primary rounded-circle p-3 me-3">
+                <i class="fas fa-users fa-lg"></i>
+            </div>
+            <div>
+                <p class="text-muted small fw-bold mb-0 text-uppercase">Pacientes</p>
+                <h3 class="fw-bold mb-0">{{ total_pacientes }}</h3>
             </div>
         </div>
     </div>
-    
-    <div class="col-6 col-md-4">
-        <div class="content-card border-0 shadow-sm border-start border-success border-5 p-3 h-100">
-            <div class="d-flex align-items-center flex-column flex-md-row text-center text-md-start">
-                <div class="rounded-circle bg-success bg-opacity-10 p-2 p-md-3 mb-2 mb-md-0 me-md-3">
-                    <i class="fas fa-syringe fa-lg fa-md-2x text-success"></i>
-                </div>
-                <div>
-                    <h6 class="text-muted mb-1 text-uppercase x-small-mobile fw-bold">Doses</h6>
-                    <h2 class="fw-bold mb-0 h4-mobile">{{ vacinas.count }}</h2>
-                </div>
+
+    <div class="col-12 col-sm-6 col-xl-3">
+        <div class="content-card border-0 shadow-sm p-4 d-flex align-items-center">
+            <div class="icon-box bg-success-subtle text-success rounded-circle p-3 me-3">
+                <i class="fas fa-syringe fa-lg"></i>
+            </div>
+            <div>
+                <p class="text-muted small fw-bold mb-0 text-uppercase">Doses</p>
+                <h3 class="fw-bold mb-0">{{ total_doses }}</h3>
             </div>
         </div>
     </div>
 </div>
 
+<header class="mb-4 d-flex justify-content-between align-items-center">
+    <h4 class="fw-bold mb-0">Relatório de Aplicações</h4>
+    <button class="btn btn-light btn-sm border shadow-sm px-3 rounded-pill">
+        <i class="fas fa-download me-2"></i>Exportar
+    </button>
+</header>
+
 <div class="content-card border-0 shadow-sm">
-    <div class="d-flex justify-content-between align-items-center mb-4">
-        <h4 class="fw-bold mb-0">Relatório de Aplicações</h4>
-        <a href="{% url 'exportar_csv' %}" class="btn btn-light btn-sm shadow-sm">
-            <i class="fas fa-download me-2"></i>Exportar
-        </a>
-    </div>
-    
     <div class="table-responsive">
-        <table class="table table-mobile-cards">
-            <thead class="table-light">
+        <table class="table table-mobile-cards align-middle mb-0">
+            <thead>
                 <tr>
-                    <td>PACIENTE</td>
-                    <td>VACINA / LOTE</td>
-                    <td>DATA APLICAÇÃO</td>
-                    <td class="text-center">STATUS</td>
+                    <th class="ps-4">PACIENTE</th>
+                    <th>VACINA / LOTE</th>
+                    <th class="text-center">DATA APLICAÇÃO</th>
+                    <th class="text-center">STATUS</th>
                 </tr>
             </thead>
             <tbody>
-                {% for v in vacinas %}
+                {% for aplicacao in ultimas_aplicacoes %}
                 <tr>
-                    <td data-label="PACIENTE" class="fw-bold text-primary">{{ v.paciente.nome|upper }}</td>
-                    <td data-label="VACINA / LOTE">
-                        <span class="badge bg-light text-dark">{{ v.nome_vacina }}</span>
-                        <small class="text-muted d-block d-md-inline ms-md-1">#{{ v.lote }}</small>
+                    <td data-label="Paciente" class="ps-4 fw-bold text-primary">
+                        {{ aplicacao.paciente.nome }}
                     </td>
-                    <td data-label="DATA">{{ v.data_aplicacao|date:"d/m/Y" }}</td>
-                    <td data-label="STATUS" class="text-md-center">
-                        <span class="badge bg-success-subtle text-success rounded-pill px-3">Aplicada</span>
+                    <td data-label="Vacina/Lote">
+                        <div class="d-flex flex-column">
+                            <span>{{ aplicacao.item_estoque.nome_vacina }}</span>
+                            <small class="text-muted">Lote: {{ aplicacao.item_estoque.lote }}</small>
+                        </div>
+                    </td>
+                    <td data-label="Data" class="text-center">
+                        {{ aplicacao.data_aplicacao|date:"d/m/Y H:i" }}
+                    </td>
+                    <td data-label="Status" class="text-center">
+                        <span class="badge bg-success-subtle text-success border border-success-secondary rounded-pill px-3">Concluída</span>
                     </td>
                 </tr>
                 {% empty %}
                 <tr>
-                    <td colspan="4" class="text-center py-5 text-muted">Nenhuma aplicação registrada hoje.</td>
+                    <td colspan="4" class="text-center py-5 text-muted">
+                        <i class="fas fa-history d-block mb-2 fa-2x opacity-25"></i>
+                        Nenhuma aplicação registrada hoje.
+                    </td>
                 </tr>
                 {% endfor %}
             </tbody>
@@ -85,11 +85,15 @@
 </div>
 
 <style>
-    /* Estilos extras específicos para o Dashboard */
-    @media (max-widtd: 768px) {
-        .x-small-mobile { font-size: 0.6rem; }
-        .h4-mobile { font-size: 1.2rem; }
-        header h2 { font-size: 1.5rem; }
+    /* Estilos para os ícones dos cards */
+    .icon-box {
+        width: 50px;
+        height: 50px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
     }
+    .bg-primary-subtle { background-color: rgba(13, 110, 253, 0.1); }
+    .bg-success-subtle { background-color: rgba(25, 135, 84, 0.1); }
 </style>
 {% endblock %}

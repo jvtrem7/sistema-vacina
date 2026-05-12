@@ -19,13 +19,19 @@ from django.contrib import messages
 
 @login_required
 def home(request):
-    todas_vacinas = Vacina.objects.all().select_related('paciente', 'item_estoque__posto').order_by('-data_aplicacao')
+    # 1. Buscamos todas as aplicações (vacinas aplicadas)
+    todas_aplicacoes = Vacina.objects.all().select_related('paciente', 'item_estoque__posto').order_by('-data_aplicacao')
+    
+    # 2. Contamos o total de pacientes
     total_pacientes = Paciente.objects.count()
-    context = {
-        'total_pacientes': total_pacientes,}
+    
+    # 3. Contamos o total de doses aplicadas (o número que vai no card)
+    total_doses = todas_aplicacoes.count()
+    
     return render(request, 'vacinas/index.html', {
-        'vacinas': todas_vacinas,
+        'ultimas_aplicacoes': todas_aplicacoes, # Nome alterado para bater com o HTML do Dashboard
         'total_pacientes': total_pacientes,
+        'total_doses': total_doses,             # Adicionado para o card de doses
     })
 
 @login_required

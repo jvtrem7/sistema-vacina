@@ -1,87 +1,99 @@
 {% extends 'vacinas/base.html' %}
 
 {% block content %}
-<div class="container-fluid py-4">
+<div class="container-fluid py-3 px-md-4">
     
-    <div class="toast-container position-fixed bottom-0 end-0 p-3" style="z-index: 1100">
-        {% if messages %}
-            {% for message in messages %}
-                <div class="toast align-items-center text-white {% if message.tags == 'success' %}bg-success{% else %}bg-danger{% endif %} border-0 shadow rounded-4" role="alert">
-                    <div class="d-flex">
-                        <div class="toast-body p-3 small">
-                            <i class="fas fa-check-circle me-2"></i> {{ message }}
-                        </div>
-                        <button type="button" class="btn-close btn-close-white me-2 m-auto" data-bs-dismiss="toast"></button>
+    <header class="mb-4">
+        <h4 class="fw-bold mb-0 text-dark">
+            <i class="fas fa-user-plus me-2 text-primary"></i> 
+            {% if editando %}Editar Registro{% else %}Novo Paciente{% endif %}
+        </h4>
+        <p class="text-muted small">Preencha os campos essenciais para o sistema.</p>
+    </header>
+
+    <div class="content-card border-0 shadow-sm p-4">
+        <form method="POST">
+            {% csrf_token %}
+            
+            <div class="row g-3"> <div class="col-lg-12">
+                    <label class="form-label mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Nome Completo</label>
+                    <div class="slim-field">
+                        {{ form.nome }}
                     </div>
                 </div>
-            {% endfor %}
-        {% endif %}
-    </div>
 
-    <div class="row justify-content-center mb-3">
-        <div class="col-12 col-lg-11 col-xl-10 ps-2">
-            <h4 class="fw-bold text-dark mb-1">
-                <i class="fas fa-user-plus me-2 text-primary"></i> 
-                {% if editando %}Editar Cidadão{% else %}Novo Paciente{% endif %}
-            </h4>
-            <p class="text-muted small">Preencha os dados essenciais para o prontuário.</p>
-        </div>
-    </div>
+                <div class="col-md-4 col-lg-4">
+                    <label class="form-label mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">CPF</label>
+                    <div class="slim-field">
+                        {{ form.cpf }}
+                    </div>
+                </div>
 
-    <div class="row justify-content-center">
-        <div class="col-12 col-lg-11 col-xl-10"> 
-            <div class="card border-0 shadow-sm rounded-4">
-                <div class="card-body p-4 p-md-5">
-                    <form method="POST">
-                        {% csrf_token %}
-                        <div class="row g-3">
-                            {% for field in form %}
-                                <div class="{% if field.name == 'nome' %}col-12{% else %}col-md-6 col-lg-3{% endif %}">
-                                    <label class="form-label small fw-bold text-secondary mb-1" style="font-size: 0.7rem;">{{ field.label|upper }}</label>
-                                    <div class="slim-input-wrapper">
-                                        {{ field }}
-                                    </div>
-                                    {% if field.errors %}
-                                        <div class="text-danger" style="font-size: 0.7rem;">{{ field.errors|striptags }}</div>
-                                    {% endif %}
-                                </div>
-                            {% endfor %}
+                <div class="col-md-4 col-lg-4">
+                    <label class="form-label mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Cartão SUS</label>
+                    <div class="slim-field">
+                        {{ form.cartao_sus }}
+                    </div>
+                </div>
 
-                            <div class="col-12 mt-4 pt-3 border-top d-flex align-items-center">
-                                <button type="submit" class="btn btn-primary px-5 py-2 fw-bold rounded-pill shadow-sm" style="font-size: 0.9rem;">
-                                    <i class="fas fa-save me-2"></i> FINALIZAR CADASTRO
-                                </button>
-                                <a href="{% url 'listar_pacientes' %}" class="btn btn-link btn-sm text-muted text-decoration-none ms-3">Cancelar</a>
-                            </div>
-                        </div>
-                    </form>
+                <div class="col-md-4 col-lg-4">
+                    <label class="form-label mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Data de Nascimento</label>
+                    <div class="slim-field">
+                        {{ form.data_nascimento }}
+                    </div>
+                </div>
+
+                <div class="col-md-4 col-lg-4">
+                    <label class="form-label mb-1 fw-bold text-secondary text-uppercase" style="font-size: 0.65rem; letter-spacing: 0.5px;">Telefone</label>
+                    <div class="slim-field">
+                        {{ form.telefone }}
+                    </div>
+                </div>
+
+                <div class="col-12 mt-4 pt-3 border-top d-flex align-items-center">
+                    <button type="submit" class="btn btn-primary px-4 py-2 fw-bold shadow-sm rounded-pill" style="font-size: 0.85rem;">
+                        <i class="fas fa-save me-2"></i>Salvar Registro
+                    </button>
+                    <a href="{% url 'listar_pacientes' %}" class="btn btn-link btn-sm text-muted text-decoration-none ms-3">
+                        Cancelar
+                    </a>
                 </div>
             </div>
-        </div>
+        </form>
     </div>
 </div>
 
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var toastElList = [].slice.call(document.querySelectorAll('.toast'))
-        var toastList = toastElList.map(function (toastEl) {
-            return new bootstrap.Toast(toastEl)
-        })
-        toastList.forEach(toast => toast.show());
-    });
-</script>
-
 <style>
-    .slim-input-wrapper input, .slim-input-wrapper select {
-        display: block; width: 100%; height: 38px !important;
-        padding: 0 15px !important; font-size: 0.9rem !important;
-        background-color: #f8fafc !important; border: 1px solid #e2e8f0 !important;
-        border-radius: 8px !important; transition: all 0.2s;
+    /* CSS PARA O EFEITO SLIM TOTAL */
+    .slim-field input, 
+    .slim-field select {
+        display: block;
+        width: 100%;
+        height: 38px !important; /* Altura reduzida */
+        padding: 0 12px !important;
+        font-size: 0.85rem !important; /* Fonte menor */
+        background-color: #f8fafc !important;
+        border: 1px solid #e2e8f0 !important;
+        border-radius: 6px !important; /* Bordas mais retas e profissionais */
+        transition: all 0.2s;
     }
-    .slim-input-wrapper input:focus {
-        background-color: #fff !important; border-color: #3b82f6 !important;
-        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important; outline: none;
+
+    .slim-field input:focus {
+        background-color: #fff !important;
+        border-color: #3b82f6 !important;
+        box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1) !important;
+        outline: none;
     }
-    .card { border-radius: 15px !important; }
+
+    /* Ajuste para alinhar labels */
+    .form-label {
+        display: block;
+    }
+
+    /* Remove padding excessivo do card se necessário */
+    .content-card {
+        background: #fff;
+        border-radius: 12px;
+    }
 </style>
 {% endblock %}

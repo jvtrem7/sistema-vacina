@@ -109,31 +109,62 @@
 
     /* --- MOBILE REESTILIZADO --- */
     @media (max-width: 991px) {
-        body { background-color: var(--bg-light); }
-        .sidebar { display: none !important; }
-        .main-content { margin-left: 0; width: 100%; padding: 1rem; padding-bottom: 120px; }
+    body { background-color: var(--bg-light); }
+    .sidebar { display: none !important; }
+    .main-content { margin-left: 0; width: 100%; padding: 1rem; padding-bottom: 120px; }
 
-        .mobile-app-nav {
-            display: flex !important; position: fixed; bottom: 24px; left: 50%;
-            transform: translateX(-50%); width: 92%; max-width: 420px;
-            background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 8px;
-            justify-content: space-evenly; align-items: center; z-index: 9999;
-            border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.08);
-        }
-        .mobile-app-nav a { color: #86868b; font-size: 1.2rem; padding: 10px; transition: 0.3s; }
-        .mobile-app-nav a.active { color: var(--primary-color); transform: translateY(-2px); }
-
-        /* --- TABELA EM CARDS NO MOBILE --- */
-        .table-responsive { border: none !important; background: transparent !important; box-shadow: none !important; }
-        .table-mobile-cards thead { display: none !important; }
-        .table-mobile-cards tbody, .table-mobile-cards tr, .table-mobile-cards td { display: block !important; width: 100% !important; background-color: transparent !important; }
-        .table-mobile-cards tr { margin-bottom: 20px !important; background: #ffffff !important; border-radius: 20px !important; padding: 12px !important; border: 1px solid var(--border-color) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important; }
-        .table-mobile-cards td { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 12px 8px !important; border: none !important; border-bottom: 1px solid #f1f5f9 !important; min-height: 50px !important; }
-        .table-mobile-cards td:last-child { border-bottom: none !important; }
-        .table-mobile-cards td::before { content: attr(data-label); font-weight: 700 !important; color: var(--text-slate) !important; font-size: 0.7rem !important; text-transform: uppercase !important; flex: 1 !important; padding-right: 10px; text-align: left; }
-        .table-mobile-cards td > * { flex: 2 !important; text-align: right !important; font-size: 0.95rem; }
+    .mobile-app-nav {
+        display: flex !important; position: fixed; bottom: 24px; left: 50%;
+        transform: translateX(-50%); width: 92%; max-width: 420px;
+        background: rgba(255, 255, 255, 0.85); backdrop-filter: blur(20px);
+        -webkit-backdrop-filter: blur(20px); border-radius: 24px; padding: 8px;
+        justify-content: space-evenly; align-items: center; z-index: 9999;
+        border: 1px solid rgba(255,255,255,0.3); box-shadow: 0 10px 30px rgba(0,0,0,0.08);
     }
+    .mobile-app-nav a { color: #86868b; font-size: 1.2rem; padding: 10px; transition: 0.3s; }
+    .mobile-app-nav a.active { color: var(--primary-color); transform: translateY(-2px); }
+
+    /* --- TABELA EM CARDS NO MOBILE --- */
+    .table-responsive { border: none !important; background: transparent !important; box-shadow: none !important; }
+    .table-mobile-cards thead { display: none !important; }
+    .table-mobile-cards tbody, .table-mobile-cards tr, .table-mobile-cards td { display: block !important; width: 100% !important; background-color: transparent !important; }
+    .table-mobile-cards tr { margin-bottom: 20px !important; background: #ffffff !important; border-radius: 20px !important; padding: 12px !important; border: 1px solid var(--border-color) !important; box-shadow: 0 4px 12px rgba(0, 0, 0, 0.04) !important; }
+    .table-mobile-cards td { display: flex !important; justify-content: space-between !important; align-items: center !important; padding: 12px 8px !important; border: none !important; border-bottom: 1px solid #f1f5f9 !important; min-height: 50px !important; }
+    .table-mobile-cards td:last-child { border-bottom: none !important; }
+    .table-mobile-cards td::before { content: attr(data-label); font-weight: 700 !important; color: var(--text-slate) !important; font-size: 0.7rem !important; text-transform: uppercase !important; flex: 1 !important; padding-right: 10px; text-align: left; }
+    .table-mobile-cards td > * { flex: 2 !important; text-align: right !important; font-size: 0.95rem; }
+
+    /* --- FIX: BOTÃO DE PESQUISA BUGADO (ADICIONE ISSO AQUI) --- */
+    .input-group {
+        display: flex !important;
+        flex-wrap: nowrap !important; /* Força o botão a ficar na mesma linha */
+        background: #ffffff !important;
+        border-radius: 50px !important; /* Estilo pílula */
+        padding: 4px !important;
+        border: 1px solid #e2e8f0 !important;
+        height: 54px !important;
+        overflow: hidden;
+    }
+
+    .input-group input {
+        flex: 1 !important;
+        border: none !important;
+        box-shadow: none !important;
+        padding-left: 20px !important;
+        font-size: 0.9rem !important;
+        background: transparent !important;
+    }
+
+    .input-group .btn {
+        border-radius: 50px !important;
+        padding: 0 25px !important;
+        height: 100% !important;
+        white-space: nowrap !important; /* Impede o texto de quebrar */
+        font-weight: bold !important;
+        font-size: 0.8rem !important;
+        margin: 0 !important;
+    }
+}
 </style>
 </head>
 <body>

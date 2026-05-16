@@ -13,9 +13,13 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db import transaction
+from django.db.utils import OperationalError, ProgrammingError
 from django.contrib import messages
 from django.urls import reverse
 from django.utils import timezone
+
+
+OFFLINE_TRACKING_DISABLED = False
 
 
 def _wants_sync_json(request):
@@ -38,26 +42,39 @@ def _offline_client_id(request):
 
 
 def _offline_already_applied(request):
+    global OFFLINE_TRACKING_DISABLED
+    if OFFLINE_TRACKING_DISABLED:
+        return False
     client_id = _offline_client_id(request)
     if not client_id:
         return False
-    return OfflineSubmission.objects.filter(client_id=client_id, status='applied').exists()
+    try:
+        return OfflineSubmission.objects.filter(client_id=client_id, status='applied').exists()
+    except (OperationalError, ProgrammingError):
+        OFFLINE_TRACKING_DISABLED = True
+        return False
 
 
 def _mark_offline_applied(request):
+    global OFFLINE_TRACKING_DISABLED
+    if OFFLINE_TRACKING_DISABLED:
+        return
     client_id = _offline_client_id(request)
     if not client_id:
         return
-    OfflineSubmission.objects.update_or_create(
-        client_id=client_id,
-        defaults={
-            'endpoint': request.path[:200],
-            'user': request.user if request.user.is_authenticated else None,
-            'status': 'applied',
-            'error_message': '',
-            'applied_at': timezone.now(),
-        },
-    )
+    try:
+        OfflineSubmission.objects.update_or_create(
+            client_id=client_id,
+            defaults={
+                'endpoint': request.path[:200],
+                'user': request.user if request.user.is_authenticated else None,
+                'status': 'applied',
+                'error_message': '',
+                'applied_at': timezone.now(),
+            },
+        )
+    except (OperationalError, ProgrammingError):
+        OFFLINE_TRACKING_DISABLED = True
 
 
 def _sync_success(request, redirect_name, message='Registro sincronizado com sucesso.'):

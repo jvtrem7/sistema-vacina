@@ -37,7 +37,7 @@
             <div class="card border-0 shadow-sm rounded-4">
                 <div class="card-body p-4 p-md-5">
                     
-                    <form method="POST" id="form-agendamento">
+                    <form method="POST" id="form-agendamento" data-offline-sync="agendamento">
                         {% csrf_token %}
                         
                         <div class="mb-5">
@@ -107,6 +107,11 @@
         const url = "{% url 'ajax_carregar_vacinas' %}";
         const postoId = $(this).val();
 
+        if (!navigator.onLine && window.easyVaccOfflineSync) {
+            window.easyVaccOfflineSync.populateVacinasSelect("#id_posto", "#id_item_estoque");
+            return;
+        }
+
         $.ajax({
             url: url,
             data: { 'posto_id': postoId },
@@ -116,6 +121,11 @@
                     html_data += `<option value="${item.id}">${item.nome_vacina} - Lote: ${item.lote}</option>`;
                 });
                 $("#id_item_estoque").html(html_data);
+            },
+            error: function () {
+                if (window.easyVaccOfflineSync) {
+                    window.easyVaccOfflineSync.populateVacinasSelect("#id_posto", "#id_item_estoque");
+                }
             }
         });
     });

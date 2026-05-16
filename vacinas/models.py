@@ -1,4 +1,5 @@
 from django.db import models
+from django.conf import settings
 from django.utils import timezone
 from django.db.models.signals import post_save
 from django.dispatch import receiver
@@ -97,3 +98,29 @@ class Agendamento(models.Model):
 
 # Adicione este campo no seu modelo Estoque já existente:
 # quantidade_reservada = models.PositiveIntegerField(default=0)
+
+
+class OfflineSubmission(models.Model):
+    STATUS_CHOICES = [
+        ('applied', 'Aplicado'),
+        ('failed', 'Falhou'),
+    ]
+
+    client_id = models.CharField(max_length=80, unique=True)
+    endpoint = models.CharField(max_length=200)
+    user = models.ForeignKey(
+        settings.AUTH_USER_MODEL,
+        on_delete=models.SET_NULL,
+        null=True,
+        blank=True,
+    )
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default='applied')
+    error_message = models.TextField(blank=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    applied_at = models.DateTimeField(null=True, blank=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"{self.client_id} - {self.status}"

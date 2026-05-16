@@ -24,6 +24,7 @@ urlpatterns = [
     path('estoque/novo/', views.cadastrar_estoque, name='cadastrar_estoque'),
     path('exportar-csv/', views.exportar_dados_csv, name='exportar_csv'),
     path('ajax/carregar-vacinas/', views.carregar_vacinas_posto, name='ajax_carregar_vacinas'),
+    path('api/offline/bootstrap/', views.offline_bootstrap, name='offline_bootstrap'),
     path('agendar/', views.agendar_vacina, name='agendar_vacina'),
     path('agendar/sucesso/', views.index_escolha, name='sucesso_agendamento'),
     path('agendamentos/listar/', views.listar_agendamentos, name='listar_agendamentos'),

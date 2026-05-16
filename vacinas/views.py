@@ -4,7 +4,7 @@ import os
 import requests
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Vacina, Paciente, Estoque, PostoSaude, Agendamento
+from .models import Vacina, Paciente, Estoque, PostoSaude, Agendamento, OfflineSubmission
 from .forms import PacienteForm, VacinaForm, EstoqueForm
 from django.http import HttpResponse
 from django.db.models import Q
@@ -13,10 +13,67 @@ from django.http import JsonResponse
 from django.views.decorators.http import require_GET, require_POST
 from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db import transaction
-from django.contrib import messages  
-from .models import Agendamento     
-from .forms import VacinaForm   
-from django.contrib import messages    
+from django.contrib import messages
+from django.urls import reverse
+from django.utils import timezone
+
+
+def _wants_sync_json(request):
+    return (
+        request.headers.get('X-Offline-Replay') == '1'
+        or request.headers.get('X-Requested-With') == 'XMLHttpRequest'
+    )
+
+
+def _form_error_message(form):
+    errors = []
+    for field, field_errors in form.errors.items():
+        label = form.fields.get(field).label if field in form.fields else field
+        errors.append(f"{label}: {'; '.join(field_errors)}")
+    return ' '.join(errors) or 'Revise os campos do formulario.'
+
+
+def _offline_client_id(request):
+    return (request.POST.get('offline_client_id') or '').strip()[:80]
+
+
+def _offline_already_applied(request):
+    client_id = _offline_client_id(request)
+    if not client_id:
+        return False
+    return OfflineSubmission.objects.filter(client_id=client_id, status='applied').exists()
+
+
+def _mark_offline_applied(request):
+    client_id = _offline_client_id(request)
+    if not client_id:
+        return
+    OfflineSubmission.objects.update_or_create(
+        client_id=client_id,
+        defaults={
+            'endpoint': request.path[:200],
+            'user': request.user if request.user.is_authenticated else None,
+            'status': 'applied',
+            'error_message': '',
+            'applied_at': timezone.now(),
+        },
+    )
+
+
+def _sync_success(request, redirect_name, message='Registro sincronizado com sucesso.'):
+    if _wants_sync_json(request):
+        return JsonResponse({
+            'ok': True,
+            'message': message,
+            'redirect_url': reverse(redirect_name),
+        })
+    return redirect(redirect_name)
+
+
+def _sync_error(request, message, status=422):
+    if _wants_sync_json(request):
+        return JsonResponse({'ok': False, 'message': message}, status=status)
+    return None
 
 @login_required
 def home(request):
@@ -38,10 +95,16 @@ def home(request):
 @login_required
 def cadastrar_paciente(request):
     if request.method == 'POST': 
+        if _offline_already_applied(request):
+            return _sync_success(request, 'home', 'Paciente ja sincronizado anteriormente.')
         form = PacienteForm(request.POST)
         if form.is_valid():     
-            form.save()         
-            return redirect('home') 
+            form.save()
+            _mark_offline_applied(request)
+            return _sync_success(request, 'home')
+        error_response = _sync_error(request, _form_error_message(form))
+        if error_response:
+            return error_response
     else:
         form = PacienteForm()
     return render(request, 'vacinas/cadastro_paciente.html', {'form': form})
@@ -49,13 +112,19 @@ def cadastrar_paciente(request):
 @login_required
 def registrar_dose(request):
     if request.method == 'POST':
+        if _offline_already_applied(request):
+            return _sync_success(request, 'home', 'Dose ja sincronizada anteriormente.')
         form = VacinaForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('home')
+            _mark_offline_applied(request)
+            return _sync_success(request, 'home')
         else:
             # Isso vai imprimir o erro no terminal do seu PC para você ver o que é
-            print(form.errors) 
+            print(form.errors)
+            error_response = _sync_error(request, _form_error_message(form))
+            if error_response:
+                return error_response
     else:
         form = VacinaForm()
     return render(request, 'vacinas/registrar_dose.html', {'form': form})
@@ -69,9 +138,16 @@ def listar_pacientes(request):
 def editar_paciente(request, pk):
     paciente = get_object_or_404(Paciente, pk=pk)
     form = PacienteForm(request.POST or None, instance=paciente) 
+    if request.method == 'POST' and _offline_already_applied(request):
+        return _sync_success(request, 'listar_pacientes', 'Paciente ja sincronizado anteriormente.')
     if form.is_valid():
         form.save()
-        return redirect('listar_pacientes')
+        _mark_offline_applied(request)
+        return _sync_success(request, 'listar_pacientes')
+    if request.method == 'POST':
+        error_response = _sync_error(request, _form_error_message(form))
+        if error_response:
+            return error_response
     return render(request, 'vacinas/cadastro_paciente.html', {'form': form, 'editando': True})
 
 def portal_boas_vindas(request):
@@ -302,10 +378,16 @@ def listar_estoque(request):
 @login_required
 def cadastrar_estoque(request):
     if request.method == 'POST':
+        if _offline_already_applied(request):
+            return _sync_success(request, 'listar_estoque', 'Lote ja sincronizado anteriormente.')
         form = EstoqueForm(request.POST)
         if form.is_valid():
             form.save()
-            return redirect('listar_estoque')
+            _mark_offline_applied(request)
+            return _sync_success(request, 'listar_estoque')
+        error_response = _sync_error(request, _form_error_message(form))
+        if error_response:
+            return error_response
     else:
         form = EstoqueForm()
     return render(request, 'vacinas/cadastrar_estoque.html', {'form': form})
@@ -380,11 +462,43 @@ def carregar_vacinas_posto(request):
     return JsonResponse(list(vacinas), safe=False)
 
 
+@require_GET
+def offline_bootstrap(request):
+    estoques = []
+    for item in Estoque.objects.filter(quantidade_atual__gt=0).select_related('posto').order_by('nome_vacina'):
+        disponivel = max(item.quantidade_atual - item.quantidade_reservada, 0)
+        if disponivel <= 0:
+            continue
+        estoques.append({
+            'id': item.id,
+            'nome_vacina': item.nome_vacina,
+            'lote': item.lote,
+            'posto_id': item.posto_id,
+            'posto_nome': item.posto.nome if item.posto else '',
+            'disponivel': disponivel,
+        })
+
+    payload = {
+        'postos': list(PostoSaude.objects.order_by('nome').values('id', 'nome', 'bairro', 'cep')),
+        'estoques': estoques,
+        'pacientes': [],
+    }
+
+    if request.user.is_authenticated:
+        payload['pacientes'] = list(
+            Paciente.objects.order_by('nome').values('id', 'nome', 'cpf', 'cartao_sus')
+        )
+
+    return JsonResponse(payload)
+
+
 def agendar_vacina(request):
     # Definimos a variável no topo para ela sempre existir
     postos = PostoSaude.objects.all()
     
     if request.method == 'POST':
+        if _offline_already_applied(request):
+            return _sync_success(request, 'agendar_vacina', 'Agendamento ja sincronizado anteriormente.')
         cpf = request.POST.get('cpf')
         item_id = request.POST.get('item_estoque')
         data_hora = request.POST.get('data_hora')
@@ -392,6 +506,9 @@ def agendar_vacina(request):
         paciente = Paciente.objects.filter(cpf=cpf).first()
         
         if not paciente:
+            error_response = _sync_error(request, 'CPF nao encontrado. Faca seu cadastro primeiro.')
+            if error_response:
+                return error_response
             messages.error(request, 'CPF não encontrado. Faça seu cadastro primeiro.')
             return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
 
@@ -408,13 +525,20 @@ def agendar_vacina(request):
                     )
                     estoque.quantidade_reservada += 1
                     estoque.save()
+                    _mark_offline_applied(request)
                     
                     messages.success(request, "Agendamento realizado com sucesso!")
                     # Redirecionamos para a tela de escolha para garantir o funcionamento
-                    return render(request, 'vacinas/agendar_vacina.html', {'postos': postos})
+                    return _sync_success(request, 'agendar_vacina', 'Agendamento sincronizado com sucesso.')
                 else:
+                    error_response = _sync_error(request, 'Nao ha doses disponiveis.', status=409)
+                    if error_response:
+                        return error_response
                     messages.error(request, "Não há doses disponíveis.")
         except Exception as e:
+            error_response = _sync_error(request, f"Erro no sistema: {e}", status=500)
+            if error_response:
+                return error_response
             messages.error(request, f"Erro no sistema: {e}")
 
     # Este retorno garante que o GET (carregamento inicial) funcione sem erro de 'postos'
@@ -447,7 +571,13 @@ def meus_agendamentos(request):
 def confirmar_agendamento(request, agendamento_id):
     agendamento = get_object_or_404(Agendamento, id=agendamento_id)
 
+    if _offline_already_applied(request):
+        return _sync_success(request, 'listar_agendamentos', 'Confirmacao ja sincronizada anteriormente.')
+
     if agendamento.status != 'pendente':
+        error_response = _sync_error(request, 'Este agendamento ja foi processado.', status=409)
+        if error_response:
+            return error_response
         messages.warning(request, "Este agendamento já foi processado.")
         return redirect('listar_agendamentos')
 
@@ -464,11 +594,15 @@ def confirmar_agendamento(request, agendamento_id):
 
             agendamento.status = 'concluido'
             agendamento.save(update_fields=['status'])
+            _mark_offline_applied(request)
             messages.success(request, f"Dose confirmada para {agendamento.paciente.nome}!")
         else:
+            error_response = _sync_error(request, 'Estoque insuficiente ou reserva inconsistente.', status=409)
+            if error_response:
+                return error_response
             messages.error(request, "Estoque insuficiente ou reserva inconsistente.")
 
-    return redirect('listar_agendamentos')
+    return _sync_success(request, 'listar_agendamentos', 'Confirmacao sincronizada com sucesso.')
 
 @login_required
 def cancelar_agendamento(request, agendamento_id):
@@ -493,10 +627,13 @@ def historico_agendamentos(request):
     agendamentos = Agendamento.objects.exclude(status='pendente').order_by('-data_hora')
     return render(request, 'vacinas/historico_agendamentos.html', {'agendamentos': agendamentos})
 
+@login_required
 def cancelar_agendamento(request, agendamento_id):
     agendamento = get_object_or_404(Agendamento, id=agendamento_id)
     
     if request.method == 'POST':
+        if _offline_already_applied(request):
+            return _sync_success(request, 'listar_agendamentos', 'Cancelamento ja sincronizado anteriormente.')
         justificativa = request.POST.get('justificativa')
         
         with transaction.atomic():
@@ -514,9 +651,10 @@ def cancelar_agendamento(request, agendamento_id):
             agendamento.status = 'cancelado'
             agendamento.justificativa_cancelamento = justificativa
             agendamento.save()
+            _mark_offline_applied(request)
             
             messages.warning(request, "Agendamento cancelado e estoque atualizado.")
-            return redirect('listar_agendamentos')
+            return _sync_success(request, 'listar_agendamentos', 'Cancelamento sincronizado com sucesso.')
 
     return render(request, 'vacinas/confirmar_cancelamento.html', {'agendamento': agendamento})
 

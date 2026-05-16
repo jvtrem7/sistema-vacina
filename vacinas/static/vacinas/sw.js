@@ -1,38 +1,103 @@
-/* EasyVacc — PWA instalável + cache mínimo da página inicial (pública).
+/* EasyVacc PWA
+   - Guarda paginas e assets visitados para uso offline.
+   - Mantem POSTs fora do service worker; a fila de sincronizacao fica em
+     offline-sync.js, no IndexedDB do navegador. */
 
-   Sem rede: apenas a rota '/' pode aparecer em cache (último HTML visitado /
-   pré-cache). Áreas logadas e API continuam exigindo conexão. */
+const STATIC_CACHE = 'easyvacc-static-v4';
+const PAGE_CACHE = 'easyvacc-pages-v1';
+const RUNTIME_CACHE = 'easyvacc-runtime-v1';
+const PRECACHE_URLS = [
+  '/',
+  '/manifest.webmanifest',
+  '/static/vacinas/easyvacc.png',
+  '/static/vacinas/icon-192.png',
+  '/static/vacinas/icon-512.png',
+  '/static/vacinas/offline-sync.js',
+];
 
-const CACHE = 'easyvacc-static-v2';
-const HOMEPAGES = ['/']; // apenas rotas públicas seguras para fallback offline
+function sameOrigin(url) {
+  return url.origin === self.location.origin;
+}
 
-function homeUrlCandidates() {
-  const base = self.registration.scope;
-  return HOMEPAGES.map((p) => new URL(p, base).href);
+function shouldSkipSameOrigin(url) {
+  return (
+    url.pathname.startsWith('/admin/') ||
+    url.pathname.startsWith('/logout/') ||
+    url.pathname.startsWith('/exportar-csv/')
+  );
+}
+
+function cacheableResponse(response) {
+  return response && (
+    response.status === 200 ||
+    response.type === 'opaque'
+  );
+}
+
+function cacheFirst(request, cacheName) {
+  return caches.match(request).then((cached) => {
+    if (cached) return cached;
+    return fetch(request).then((response) => {
+      if (cacheableResponse(response)) {
+        const clone = response.clone();
+        caches.open(cacheName).then((cache) => cache.put(request, clone));
+      }
+      return response;
+    });
+  });
+}
+
+function networkFirst(request, cacheName, fallbackUrl) {
+  return fetch(request)
+    .then((response) => {
+      if (cacheableResponse(response)) {
+        const clone = response.clone();
+        caches.open(cacheName).then((cache) => cache.put(request, clone));
+      }
+      return response;
+    })
+    .catch(() =>
+      caches.match(request).then((cached) => {
+        if (cached) return cached;
+        if (fallbackUrl) return caches.match(fallbackUrl);
+        return Response.error();
+      }),
+    );
+}
+
+function staleWhileRevalidate(request, cacheName) {
+  return caches.open(cacheName).then((cache) =>
+    cache.match(request).then((cached) => {
+      const fresh = fetch(request)
+        .then((response) => {
+          if (cacheableResponse(response)) cache.put(request, response.clone());
+          return response;
+        })
+        .catch(() => cached);
+      return cached || fresh;
+    }),
+  );
 }
 
 self.addEventListener('install', (event) => {
   event.waitUntil(
-    caches
-      .open(CACHE)
-      .then((cache) =>
-        cache.addAll(homeUrlCandidates()).catch(() => {
-          /* rede indisponível no install ou bloqueio: ignora */
-        }),
-      ),
+    caches.open(STATIC_CACHE).then((cache) =>
+      Promise.all(PRECACHE_URLS.map((url) => cache.add(url).catch(() => undefined))),
+    ),
   );
   self.skipWaiting();
 });
 
 self.addEventListener('activate', (event) => {
+  const keep = new Set([STATIC_CACHE, PAGE_CACHE, RUNTIME_CACHE]);
   event.waitUntil(
     caches
       .keys()
       .then((keys) =>
         Promise.all(
           keys
-            .filter((k) => k !== CACHE && k.startsWith('easyvacc-static-'))
-            .map((k) => caches.delete(k)),
+            .filter((key) => key.startsWith('easyvacc-') && !keep.has(key))
+            .map((key) => caches.delete(key)),
         ),
       )
       .then(() => self.clients.claim()),
@@ -40,42 +105,27 @@ self.addEventListener('activate', (event) => {
 });
 
 self.addEventListener('fetch', (event) => {
-  const req = event.request;
-  if (req.method !== 'GET') return;
+  const request = event.request;
+  if (request.method !== 'GET') return;
 
-  const url = new URL(req.url);
-  const isSameOrigin = url.origin === self.location.origin;
+  const url = new URL(request.url);
 
-  /* Navegação: rede primeiro; atualiza cache da home só se for página inicial */
-  if (req.mode === 'navigate') {
-    event.respondWith(
-      fetch(req)
-        .then((response) => {
-          if (
-            response &&
-            response.status === 200 &&
-            response.type === 'basic' &&
-            isSameOrigin &&
-            HOMEPAGES.includes(url.pathname)
-          ) {
-            const clone = response.clone();
-            caches.open(CACHE).then((cache) => cache.put(req, clone));
-          }
-          return response;
-        })
-        .catch(() => {
-          /* offline: só servir cache para a página inicial explícita */
-          if (
-            isSameOrigin &&
-            HOMEPAGES.includes(url.pathname)
-          ) {
-            return caches.match(new URL('/', self.registration.scope).href);
-          }
-          return Response.error();
-        }),
-    );
+  if (sameOrigin(url) && shouldSkipSameOrigin(url)) return;
+
+  if (request.mode === 'navigate') {
+    event.respondWith(networkFirst(request, PAGE_CACHE, '/'));
     return;
   }
 
-  /* Demais GET: passa direto pela rede */
+  if (sameOrigin(url) && (url.pathname.startsWith('/static/') || url.pathname === '/manifest.webmanifest')) {
+    event.respondWith(cacheFirst(request, STATIC_CACHE));
+    return;
+  }
+
+  if (sameOrigin(url)) {
+    event.respondWith(networkFirst(request, RUNTIME_CACHE));
+    return;
+  }
+
+  event.respondWith(staleWhileRevalidate(request, RUNTIME_CACHE));
 });

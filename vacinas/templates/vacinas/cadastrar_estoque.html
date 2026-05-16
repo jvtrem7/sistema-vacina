@@ -11,7 +11,7 @@
                 <h3 class="fw-bold mb-0">Registrar Entrada de Lote</h3>
             </div>
             
-            <form method="POST">
+            <form method="POST" data-offline-sync="estoque">
                 {% csrf_token %}
                 <div class="row g-3">
                     <div class="col-md-6">
@@ -33,6 +33,10 @@
                     <div class="col-md-4">
                         <label class="form-label fw-bold">Fornecedor</label>
                         {{ form.fornecedor }}
+                    </div>
+                    <div class="col-md-12">
+                        <label class="form-label fw-bold">Unidade / Posto</label>
+                        {{ form.posto }}
                     </div>
                 </div>
                 <div class="mt-4">

@@ -524,8 +524,14 @@ def cancelar_agendamento(request, agendamento_id):
 @require_GET
 def manifest(request):
     """Web App Manifest com URLs de ícone resolvidas para produção (Whitenoise + hash)."""
-    icon_rel = staticfiles_storage.url('vacinas/easyvacc.png')
-    icon_url = request.build_absolute_uri(icon_rel)
+    # Ícones 192px e 512px reais: o Chrome desktop rejeita o mesmo PNG com sizes incorretos
+    # (easyvacc.png era 161×159), o Windows cai na letra monogramada.
+    icon192 = request.build_absolute_uri(
+        staticfiles_storage.url('vacinas/icon-192.png')
+    )
+    icon512 = request.build_absolute_uri(
+        staticfiles_storage.url('vacinas/icon-512.png')
+    )
     payload = {
         'name': 'EasyVacc',
         'short_name': 'EasyVacc',
@@ -537,13 +543,13 @@ def manifest(request):
         'theme_color': '#2563eb',
         'icons': [
             {
-                'src': icon_url,
+                'src': icon192,
                 'sizes': '192x192',
                 'type': 'image/png',
                 'purpose': 'any',
             },
             {
-                'src': icon_url,
+                'src': icon512,
                 'sizes': '512x512',
                 'type': 'image/png',
                 'purpose': 'any',

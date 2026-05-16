@@ -23,6 +23,10 @@ CSRF_TRUSTED_ORIGINS = [
     'https://*.vercel.app'
 ]
 
+# HTTPS atrás do proxy da Vercel (manifest PWA e redirects corretos)
+if os.environ.get('VERCEL'):
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'index_escolha'
 

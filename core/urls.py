@@ -6,6 +6,8 @@ from django.contrib.auth import views as auth_views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    path('manifest.webmanifest', views.manifest, name='manifest'),
+    path('sw.js', views.service_worker, name='service_worker'),
     path('', views.index_escolha, name='index_escolha'),
     path('dashboard/', views.home, name='home'), 
     path('pacientes/novo/', views.cadastrar_paciente, name='cadastrar_paciente'),

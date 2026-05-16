@@ -10,7 +10,8 @@ from django.http import HttpResponse
 from django.db.models import Q
 from django.conf import settings
 from django.http import JsonResponse
-from django.views.decorators.http import require_POST
+from django.views.decorators.http import require_GET, require_POST
+from django.contrib.staticfiles.storage import staticfiles_storage
 from django.db import transaction
 from django.contrib import messages  
 from .models import Agendamento     
@@ -518,3 +519,50 @@ def cancelar_agendamento(request, agendamento_id):
             return redirect('listar_agendamentos')
 
     return render(request, 'vacinas/confirmar_cancelamento.html', {'agendamento': agendamento})
+
+
+@require_GET
+def manifest(request):
+    """Web App Manifest com URLs de ícone resolvidas para produção (Whitenoise + hash)."""
+    icon_rel = staticfiles_storage.url('vacinas/easyvacc.png')
+    icon_url = request.build_absolute_uri(icon_rel)
+    payload = {
+        'name': 'EasyVacc',
+        'short_name': 'EasyVacc',
+        'description': 'Sistema de gestão de imunização',
+        'start_url': '/',
+        'scope': '/',
+        'display': 'standalone',
+        'background_color': '#f8fafc',
+        'theme_color': '#2563eb',
+        'icons': [
+            {
+                'src': icon_url,
+                'sizes': '192x192',
+                'type': 'image/png',
+                'purpose': 'any',
+            },
+            {
+                'src': icon_url,
+                'sizes': '512x512',
+                'type': 'image/png',
+                'purpose': 'any',
+            },
+        ],
+        'lang': 'pt-BR',
+        'dir': 'ltr',
+    }
+    return HttpResponse(
+        json.dumps(payload, ensure_ascii=False),
+        content_type='application/manifest+json; charset=utf-8',
+    )
+
+
+@require_GET
+def service_worker(request):
+    """Publicado na raiz para o escopo cobrir todo o site (instalação PWA)."""
+    sw_path = settings.BASE_DIR / 'vacinas' / 'static' / 'vacinas' / 'sw.js'
+    body = sw_path.read_text(encoding='utf-8')
+    response = HttpResponse(body, content_type='application/javascript; charset=utf-8')
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response

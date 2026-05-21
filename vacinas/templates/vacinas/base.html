@@ -14,6 +14,7 @@
     <link rel="apple-touch-icon" href="{% static 'vacinas/icon-192.png' %}">
 
     <link rel="icon" type="image/png" href="{% static 'vacinas/easyvacc.png' %}">
+    <link rel="stylesheet" href="{% static 'vacinas/pwa-install.css' %}">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -241,6 +242,35 @@
 
     <form id="logout-form" action="{% url 'logout' %}" method="post" style="display: none;">{% csrf_token %}</form>
 
+    {% if user.is_authenticated %}
+    <div id="easyvacc-install-guide" class="easyvacc-install-guide" hidden>
+        <div class="easyvacc-install-backdrop" data-install-dismiss></div>
+        <section class="easyvacc-install-sheet" role="dialog" aria-modal="true" aria-labelledby="easyvacc-install-title" aria-describedby="easyvacc-install-description">
+            <div class="easyvacc-install-ribbon"></div>
+            <div class="easyvacc-install-body">
+                <button type="button" class="easyvacc-install-close" data-install-dismiss aria-label="Fechar">
+                    <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+                </button>
+                <div class="easyvacc-install-head">
+                    <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc" class="easyvacc-install-logo">
+                    <div>
+                        <p class="easyvacc-install-label">Acesso rápido</p>
+                        <h2 id="easyvacc-install-title" class="easyvacc-install-title">Adicione o EasyVacc à tela inicial</h2>
+                    </div>
+                </div>
+                <p id="easyvacc-install-description" class="easyvacc-install-description"></p>
+                <div id="easyvacc-install-steps" class="easyvacc-install-steps"></div>
+                <div class="easyvacc-install-actions">
+                    <button id="easyvacc-install-action" type="button" class="easyvacc-install-action" hidden>
+                        <i class="fa-solid fa-download me-2" aria-hidden="true"></i>Instalar EasyVacc
+                    </button>
+                    <button type="button" class="easyvacc-install-later" data-install-dismiss>Agora não</button>
+                </div>
+            </div>
+        </section>
+    </div>
+    {% endif %}
+
     <div class="mobile-app-nav d-md-none">
         {% if user.is_authenticated and "/caderneta/" not in request.path and "/postos/" not in request.path %}
             <a href="{% url 'home' %}" class="{% if request.resolver_match.url_name == 'home' %}active{% endif %}"><i class="fa-solid fa-chart-pie"></i></a>
@@ -270,5 +300,6 @@
       }
     </script>
     <script src="{% static 'vacinas/offline-sync.js' %}"></script>
+    <script src="{% static 'vacinas/pwa-install.js' %}"></script>
 </body>
 </html>

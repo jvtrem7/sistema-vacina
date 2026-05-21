@@ -1,0 +1,187 @@
+.easyvacc-install-guide[hidden] {
+    display: none !important;
+}
+
+body.easyvacc-install-open {
+    overflow: hidden;
+}
+
+.easyvacc-install-backdrop {
+    position: fixed;
+    inset: 0;
+    z-index: 1000010;
+    background: rgba(15, 23, 42, 0.54);
+}
+
+.easyvacc-install-sheet {
+    position: fixed;
+    right: 50%;
+    bottom: 0.9rem;
+    z-index: 1000011;
+    width: min(calc(100vw - 1rem), 34rem);
+    transform: translateX(50%);
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #fff;
+    box-shadow: 0 24px 70px rgba(15, 23, 42, 0.3);
+    color: #0f172a;
+    overflow: hidden;
+}
+
+.easyvacc-install-ribbon {
+    height: 0.45rem;
+    background: linear-gradient(90deg, #2563eb 0%, #10b981 55%, #f59e0b 100%);
+}
+
+.easyvacc-install-body {
+    padding: 1.15rem;
+}
+
+.easyvacc-install-close {
+    position: absolute;
+    top: 0.8rem;
+    right: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 2rem;
+    height: 2rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #fff;
+    color: #475569;
+}
+
+.easyvacc-install-head {
+    display: flex;
+    align-items: center;
+    gap: 0.85rem;
+    min-height: 4rem;
+    padding-right: 2.65rem;
+}
+
+.easyvacc-install-logo {
+    flex: 0 0 3.5rem;
+    width: 3.5rem;
+    height: 3.5rem;
+    border: 1px solid #dbeafe;
+    border-radius: 8px;
+    background: #eff6ff;
+    object-fit: contain;
+    padding: 0.35rem;
+}
+
+.easyvacc-install-label {
+    margin: 0 0 0.18rem;
+    color: #2563eb;
+    font-size: 0.72rem;
+    font-weight: 700;
+    line-height: 1.2;
+    text-transform: uppercase;
+}
+
+.easyvacc-install-title {
+    margin: 0;
+    color: #0f172a;
+    font-size: 1.2rem;
+    font-weight: 700;
+    line-height: 1.25;
+}
+
+.easyvacc-install-description {
+    margin: 0.85rem 0 0;
+    color: #475569;
+    font-size: 0.95rem;
+    line-height: 1.45;
+}
+
+.easyvacc-install-steps {
+    display: grid;
+    gap: 0.45rem;
+    margin-top: 0.85rem;
+    padding: 0.8rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    background: #f8fafc;
+}
+
+.easyvacc-install-step {
+    display: flex;
+    align-items: flex-start;
+    gap: 0.55rem;
+    color: #334155;
+    font-size: 0.9rem;
+    line-height: 1.35;
+}
+
+.easyvacc-install-step-number,
+.easyvacc-install-inline-icon {
+    display: inline-flex;
+    flex: 0 0 auto;
+    align-items: center;
+    justify-content: center;
+    min-width: 1.45rem;
+    height: 1.45rem;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    background: #fff;
+    color: #1d4ed8;
+    font-size: 0.78rem;
+    font-weight: 700;
+}
+
+.easyvacc-install-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.55rem;
+    margin-top: 0.9rem;
+}
+
+.easyvacc-install-action,
+.easyvacc-install-later {
+    min-height: 2.6rem;
+    border-radius: 8px;
+    padding: 0.65rem 0.9rem;
+    font-size: 0.92rem;
+    font-weight: 600;
+}
+
+.easyvacc-install-action {
+    border: 1px solid #2563eb;
+    background: #2563eb;
+    color: #fff;
+}
+
+.easyvacc-install-action[hidden] {
+    display: none !important;
+}
+
+.easyvacc-install-later {
+    border: 1px solid #cbd5e1;
+    background: #fff;
+    color: #334155;
+}
+
+@media (max-width: 991px) {
+    .easyvacc-install-sheet {
+        bottom: 0;
+        width: 100%;
+        border-right: 0;
+        border-bottom: 0;
+        border-left: 0;
+        border-radius: 8px 8px 0 0;
+    }
+
+    .easyvacc-install-body {
+        padding: 1rem 1rem max(1rem, env(safe-area-inset-bottom));
+    }
+
+    .easyvacc-install-title {
+        font-size: 1.08rem;
+    }
+
+    .easyvacc-install-actions {
+        display: grid;
+        grid-template-columns: 1fr;
+    }
+}

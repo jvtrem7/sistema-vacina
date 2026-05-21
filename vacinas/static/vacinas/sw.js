@@ -3,7 +3,7 @@
    - Mantem POSTs fora do service worker; a fila de sincronizacao fica em
      offline-sync.js, no IndexedDB do navegador. */
 
-const STATIC_CACHE = 'easyvacc-static-v4';
+const STATIC_CACHE = 'easyvacc-static-v5';
 const PAGE_CACHE = 'easyvacc-pages-v1';
 const RUNTIME_CACHE = 'easyvacc-runtime-v1';
 const PRECACHE_URLS = [
@@ -13,6 +13,8 @@ const PRECACHE_URLS = [
   '/static/vacinas/icon-192.png',
   '/static/vacinas/icon-512.png',
   '/static/vacinas/offline-sync.js',
+  '/static/vacinas/pwa-install.css',
+  '/static/vacinas/pwa-install.js',
 ];
 
 function sameOrigin(url) {

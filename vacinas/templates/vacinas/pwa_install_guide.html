@@ -1,0 +1,27 @@
+{% load static %}
+<div id="easyvacc-install-guide" class="easyvacc-install-guide" hidden>
+    <div class="easyvacc-install-backdrop" data-install-dismiss></div>
+    <section class="easyvacc-install-sheet" role="dialog" aria-modal="true" aria-labelledby="easyvacc-install-title" aria-describedby="easyvacc-install-description">
+        <div class="easyvacc-install-ribbon"></div>
+        <div class="easyvacc-install-body">
+            <button type="button" class="easyvacc-install-close" data-install-dismiss aria-label="Fechar">
+                <i class="fa-solid fa-xmark" aria-hidden="true"></i>
+            </button>
+            <div class="easyvacc-install-head">
+                <img src="{% static 'vacinas/easyvacc.png' %}" alt="EasyVacc" class="easyvacc-install-logo">
+                <div>
+                    <p class="easyvacc-install-label">Acesso rápido</p>
+                    <h2 id="easyvacc-install-title" class="easyvacc-install-title">Adicione o EasyVacc à tela inicial</h2>
+                </div>
+            </div>
+            <p id="easyvacc-install-description" class="easyvacc-install-description"></p>
+            <div id="easyvacc-install-steps" class="easyvacc-install-steps"></div>
+            <div class="easyvacc-install-actions">
+                <button id="easyvacc-install-action" type="button" class="easyvacc-install-action" hidden>
+                    <i class="fa-solid fa-download me-2" aria-hidden="true"></i>Instalar EasyVacc
+                </button>
+                <button type="button" class="easyvacc-install-later" data-install-dismiss>Agora não</button>
+            </div>
+        </div>
+    </section>
+</div>

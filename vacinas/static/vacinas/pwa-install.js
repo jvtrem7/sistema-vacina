@@ -8,7 +8,7 @@
   var description = document.getElementById('easyvacc-install-description');
   var action = document.getElementById('easyvacc-install-action');
   var dismissers = guide.querySelectorAll('[data-install-dismiss]');
-  var dismissKey = 'easyvacc-install-dismissed-v1';
+  var dismissKey = 'easyvacc-install-dismissed-v2';
   var deferredPrompt = null;
   var userAgent = (navigator.userAgent || '').toLowerCase();
   var isIOS = /iphone|ipad|ipod/.test(userAgent) ||
@@ -129,5 +129,5 @@
     hide(false);
   });
 
-  window.setTimeout(show, 900);
+  window.setTimeout(show, 350);
 })();
